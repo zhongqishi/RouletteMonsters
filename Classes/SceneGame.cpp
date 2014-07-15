@@ -16,21 +16,35 @@
 #include <cmath>
 USING_NS_CC;
 
-float angleRate = -5.0f;
-float scalNow,scalZhuanPan;
-float zhuanPanActionTime = 3.2f;
-int StreakRadiusParameter=255;
-bool touched = false;
-bool actionFinished = false;
-int percentageOf = 0;
-float position[2];
-int zhuanPanCenterLevel[4] = {4,3,2,1};
+float SceneGame_angleRate = -5.0f;
+float SceneGame_scalNow,SceneGame_scalZhuanPan;
+float SceneGame_zhuanPanActionTime = 3.2f;
+int SceneGame_StreakRadiusParameter=255;
+bool SceneGame_touched = false;
+int SceneGame_actionFinishedTimer = 0;
+int SceneGame_percentageOf = 0;
+float SceneGame_position[2];
+int SceneGame_timer = 0;
+
+int SceneGame_zhuanPanCenterLevel[4] = {4,3,2,1};
+
 enum
 {
 	PinSpriteNo1 = 1,
 	PinSpriteNo2 = 2,
 	PinSpriteNo3 = 3,
 	PinSpriteNo4 = 4,
+	SpriteMonster1 = 5,
+	SpriteMonster2 = 6,
+	SpriteMonster3 = 7,
+	SpriteMosnter4 = 8,
+	SpriteMonster5 = 9,
+	ZhuanpanCenter0 = 30,
+	ZhuanpanCenter1 = 31,
+	ZhuanpanCenter2 = 32,
+	ZhuanpanCenter3 = 33,
+	AttackEffect = 99,
+	AttackEffectByAccumulate = 100,
 };
 
 
@@ -97,7 +111,7 @@ bool SceneGame::init(std::string MonsterPin1, std::string MonsterPin2, std::stri
 
 	auto menu = Menu::create(closeItem, NULL);
 	menu->setPosition(Vec2::ONE);
-	this->addChild(menu, 1);
+	this->addChild(menu, Level_1);
 
 	// 3. add your codes below...
 
@@ -107,15 +121,18 @@ bool SceneGame::init(std::string MonsterPin1, std::string MonsterPin2, std::stri
 	auto sprite_zhuanpanOutSide = Sprite::create("outside.png");
 
 	auto zhuanpan_center = Vec2(visibleSize.width / 2 + origin.x, visibleSize.height /3.5 + origin.y);
-	position[0] = visibleSize.width / 2 + origin.x;
-	position[1] = visibleSize.height / 3.5 + origin.y;
+	SceneGame_position[0] = visibleSize.width / 2 + origin.x;
+	SceneGame_position[1] = visibleSize.height / 3.5 + origin.y;
 	sprite_zhuanpanOutSide->setPosition(zhuanpan_center);
 	float  scal_ZhuanPan = visibleSize.height / sprite_zhuanpanOutSide->getContentSize().height;
+
 	if(visibleSize.width/2>visibleSize.height/3){
 		scal_ZhuanPan = visibleSize.width/520;
 	}
+
 	scal_ZhuanPan=scal_ZhuanPan/2.3;
-	scalZhuanPan = scal_ZhuanPan;
+
+	SceneGame_scalZhuanPan = scal_ZhuanPan;
 	sprite_zhuanpanOutSide->setScale(scal_ZhuanPan);
 	addChild(sprite_zhuanpanOutSide, Level_1);
 
@@ -164,10 +181,10 @@ bool SceneGame::init(std::string MonsterPin1, std::string MonsterPin2, std::stri
 	auto sprite_ZhuanpanCenter3 = Sprite::create("ZhuanpanCenter33.png");
 
 
-	sprite_ZhuanpanCenter0->setTag(30);
-	sprite_ZhuanpanCenter1->setTag(31);
-	sprite_ZhuanpanCenter2->setTag(32);
-	sprite_ZhuanpanCenter3->setTag(33);
+	sprite_ZhuanpanCenter0->setTag(ZhuanpanCenter0);
+	sprite_ZhuanpanCenter1->setTag(ZhuanpanCenter1);
+	sprite_ZhuanpanCenter2->setTag(ZhuanpanCenter2);
+	sprite_ZhuanpanCenter3->setTag(ZhuanpanCenter3);
 
 	sprite_ZhuanpanCenter0->setPosition(zhuanpan_center);
 	sprite_ZhuanpanCenter1->setPosition(zhuanpan_center);
@@ -180,10 +197,10 @@ bool SceneGame::init(std::string MonsterPin1, std::string MonsterPin2, std::stri
 	sprite_ZhuanpanCenter2->setScale(scal_ZhuanPan);
 	sprite_ZhuanpanCenter3->setScale(scal_ZhuanPan);
 
-	sprite_ZhuanpanCenter0->setPositionZ(zhuanPanCenterLevel[0]);
-	sprite_ZhuanpanCenter1->setPositionZ(zhuanPanCenterLevel[1]);
-	sprite_ZhuanpanCenter2->setPositionZ(zhuanPanCenterLevel[2]);
-	sprite_ZhuanpanCenter3->setPositionZ(zhuanPanCenterLevel[3]);
+	sprite_ZhuanpanCenter0->setPositionZ(SceneGame_zhuanPanCenterLevel[0]);
+	sprite_ZhuanpanCenter1->setPositionZ(SceneGame_zhuanPanCenterLevel[1]);
+	sprite_ZhuanpanCenter2->setPositionZ(SceneGame_zhuanPanCenterLevel[2]);
+	sprite_ZhuanpanCenter3->setPositionZ(SceneGame_zhuanPanCenterLevel[3]);
 
 	this->addChild(sprite_ZhuanpanCenter0);
 	this->addChild(sprite_ZhuanpanCenter1);
@@ -201,7 +218,7 @@ bool SceneGame::init(std::string MonsterPin1, std::string MonsterPin2, std::stri
 
 
 	gs_MotionStreak_center = zhuanpan_center;
-	gs_MotionStreak_radius = StreakRadiusParameter*scal_ZhuanPan;
+	gs_MotionStreak_radius = SceneGame_StreakRadiusParameter*scal_ZhuanPan;
 	gs_MotionStreak_angle = 0.0f;
 	/////////////////////////////
 
@@ -224,10 +241,11 @@ bool SceneGame::init(std::string MonsterPin1, std::string MonsterPin2, std::stri
 
 	// add "HelloWorld" splash screen"
 	auto spriteBoss = Sprite::create(boss);
+	spriteBoss->setTag(SpriteMonster5);
 	this->theBoss = spriteBoss;
 	float  scal = visibleSize.height / spriteBoss->getContentSize().height;
 	spriteBoss->setScale(scal / 3);
-	scalNow = scal / 3;
+	SceneGame_scalNow = scal / 3;
 	// position the sprite on the center of the screen
 	spriteBoss->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height*(1-scal/6.5)));
 
@@ -250,24 +268,37 @@ void SceneGame::setEmitterPosition()
 
 void SceneGame::update(float dt)
 {
-	gs_MotionStreak_angle += angleRate;
+	gs_MotionStreak_angle += SceneGame_angleRate;
 	streak->setPosition(Vec2(gs_MotionStreak_center.x + cosf(gs_MotionStreak_angle / 180 * M_PI)*gs_MotionStreak_radius,
 		gs_MotionStreak_center.y + sinf(gs_MotionStreak_angle / 180 * M_PI)*gs_MotionStreak_radius));
 	Partical_Emitter->setPosition(Vec2(gs_MotionStreak_center.x + cosf(gs_MotionStreak_angle / 180 * M_PI)*gs_MotionStreak_radius,
 		gs_MotionStreak_center.y + sinf(gs_MotionStreak_angle / 180 * M_PI)*gs_MotionStreak_radius));
-	if (touched){
+	if (SceneGame_touched){
 		auto *s1 = getChildByTag(PinSpriteNo1);
-
+		this->removeChildByTag(AttackEffect);
 		if (s1->numberOfRunningActions()==0){
-			touched = false;
+			SceneGame_touched = false;
 			beAttacked();
-
 		}
 
 	}
+	if (SceneGame_timer != 0){
+		SceneGame_timer++;
+		if (SceneGame_timer > 41){
+			this->removeChildByTag(AttackEffectByAccumulate);
+		}
+	}
+	if (SceneGame_actionFinishedTimer != 0)
+		SceneGame_actionFinishedTimer++;
+	if (SceneGame_actionFinishedTimer>41){
+		SceneGame_actionFinishedTimer = 0;
+		if (bossHP == 0){
+			this->removeChildByTag(SpriteMonster5);
+			auto spriteWin = Sprite::create("win.png");
+			this->addChild(spriteWin, Level_3);
+			spriteWin->setPosition(Vec2(SceneGame_position[0], SceneGame_position[1] + 300));
 
-	if (actionFinished){
-
+		}
 	}
 }
 
@@ -286,14 +317,20 @@ void SceneGame::beAttacked(){
 
 	splade2->setPosition(Vec2(0,a));
 	splade2->runAction(UtilAttackMove::create(0.5f, 0, a, b, visibleSize.height - temp));
-	this->theBoss->runAction(UtilBeingAttack::create(0.5f, scalNow));
-	actionFinished = true;
+	this->theBoss->runAction(UtilBeingAttack::create(0.5f, SceneGame_scalNow));
+	bossHP--;
+
+	splade2->setTag(AttackEffect);
+
+	SceneGame_actionFinishedTimer = 1;
 }
 
 
 
 bool SceneGame::onTouchBegan(Touch* touch, Event  *event)
 {
+	if (SceneGame_touched)
+		return false;
 	
 	return true;
 }
@@ -301,8 +338,8 @@ bool SceneGame::onTouchBegan(Touch* touch, Event  *event)
 
 
 bool SceneGame::toucheTheCenterOfZhuanpanThePosition(float x,float y){
-	MessageBox("Touched","alert");
-	if ((abs(x - position[0])<50 * scalZhuanPan) && (abs(y - position[1])<50 * scalZhuanPan))
+	MessageBox("SceneGame_touched","alert");
+	if ((abs(x - SceneGame_position[0])<50 * SceneGame_scalZhuanPan) && (abs(y - SceneGame_position[1])<50 * SceneGame_scalZhuanPan))
 		return true;
 	return false;
 }
@@ -311,32 +348,47 @@ bool SceneGame::toucheTheCenterOfZhuanpanThePosition(float x,float y){
 
 void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 {
-	auto c0 = getChildByTag(30);
-	auto c1 = getChildByTag(31);
-	auto c2 = getChildByTag(32);
-	auto c3 = getChildByTag(33);
+	auto c0 = getChildByTag(ZhuanpanCenter0);
+	auto c1 = getChildByTag(ZhuanpanCenter1);
+	auto c2 = getChildByTag(ZhuanpanCenter2);
+	auto c3 = getChildByTag(ZhuanpanCenter3);
 
 	auto location = touch->getLocation();
-	if (percentageOf == 3 && toucheTheCenterOfZhuanpanThePosition(location.x,location.y)){
-		percentageOf = 0;
 
-		c0->setPositionZ(zhuanPanCenterLevel[0]);
-		c1->setPositionZ(zhuanPanCenterLevel[1]);
-		c2->setPositionZ(zhuanPanCenterLevel[2]);
-		c3->setPositionZ(zhuanPanCenterLevel[3]);
+	if (SceneGame_percentageOf == 3 && toucheTheCenterOfZhuanpanThePosition(location.x,location.y)){
+		SceneGame_percentageOf = 0;
+		Size visibleSize = Director::getInstance()->getVisibleSize();
+		c0->setPositionZ(SceneGame_zhuanPanCenterLevel[0]);
+		c1->setPositionZ(SceneGame_zhuanPanCenterLevel[1]);
+		c2->setPositionZ(SceneGame_zhuanPanCenterLevel[2]);
+		c3->setPositionZ(SceneGame_zhuanPanCenterLevel[3]);
+
+		SceneGame_timer = 1;
+		auto _emitter = ParticleFlower::create();
+	
+		_emitter->setTag(AttackEffectByAccumulate);
+		_emitter->setTexture(Director::getInstance()->getTextureCache()->addImage("stars.png"));
+		_emitter->setLifeVar(0);
+		_emitter->setLife(2);
+		_emitter->setSpeed(100);
+		_emitter->setSpeedVar(0);
+		_emitter->setEmissionRate(10000);
+		this->addChild(_emitter,10);
+		_emitter->setPosition(Vec2(visibleSize.width/2,visibleSize.height/2));
+	
 
 	}
-	else{
+	else if(bossHP>0) {
 
-		percentageOf++;
-		if (percentageOf > 3)
-			percentageOf = 3;
+		SceneGame_percentageOf++;
+		if (SceneGame_percentageOf > 3)
+			SceneGame_percentageOf = 3;
 		int temp1, temp2, temp3, temp4;
 
-		temp1 = percentageOf - 0;
-		temp2 = percentageOf - 1;
-		temp3 = percentageOf - 2;
-		temp4 = percentageOf - 3;
+		temp1 = SceneGame_percentageOf - 0;
+		temp2 = SceneGame_percentageOf - 1;
+		temp3 = SceneGame_percentageOf - 2;
+		temp4 = SceneGame_percentageOf - 3;
 
 		if (temp2 < 0)
 			temp2 = -temp2;
@@ -346,10 +398,10 @@ void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 			temp4 = -temp4;
 
 
-		c0->setPositionZ(zhuanPanCenterLevel[temp1]);
-		c1->setPositionZ(zhuanPanCenterLevel[temp2]);
-		c2->setPositionZ(zhuanPanCenterLevel[temp3]);
-		c3->setPositionZ(zhuanPanCenterLevel[temp4]);
+		c0->setPositionZ(SceneGame_zhuanPanCenterLevel[temp1]);
+		c1->setPositionZ(SceneGame_zhuanPanCenterLevel[temp2]);
+		c2->setPositionZ(SceneGame_zhuanPanCenterLevel[temp3]);
+		c3->setPositionZ(SceneGame_zhuanPanCenterLevel[temp4]);
 
 		
 
@@ -366,16 +418,19 @@ void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 		float a = location.y - s1->getPosition().y;
 		float at = (fabs(a) + fabs(o))*1.5;
 
-		auto *action1 = UtilFadeRotateRy::create(at, zhuanPanActionTime);
-		auto *action2 = UtilFadeRotateRy::create(at, zhuanPanActionTime);
-		auto *action3 = UtilFadeRotateRy::create(at, zhuanPanActionTime);
-		auto *action4 = UtilFadeRotateRy::create(at, zhuanPanActionTime);
+		auto *action1 = UtilFadeRotateRy::create(at, SceneGame_zhuanPanActionTime);
+		auto *action2 = UtilFadeRotateRy::create(at, SceneGame_zhuanPanActionTime);
+		auto *action3 = UtilFadeRotateRy::create(at, SceneGame_zhuanPanActionTime);
+		auto *action4 = UtilFadeRotateRy::create(at, SceneGame_zhuanPanActionTime);
 
 		s1->runAction(action1);
 		s2->runAction(action2);
 		s3->runAction(action3);
 		s4->runAction(action4);
-		touched = true;
+		SceneGame_touched = true;
+	}
+	else{
+		menuCallback(NULL);
 	}
 
 	
@@ -386,6 +441,7 @@ void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 void SceneGame::menuCallback(cocos2d::Ref* pSender){
 
 	auto s = SceneMainMenu::createScene();
-
+	
 	Director::sharedDirector()->replaceScene(TransitionFade::create(1, s));
+	
 }

@@ -14,6 +14,7 @@ public:
 	static std::string MonsterPin3;
 	static std::string MonsterPin4;
 	static std::string boss;
+	
 	// there's no 'id' in cpp, so we recommend returning the class instance pointer
 	static cocos2d::Scene* createScene(std::string MonsterPin1, std::string MonsterPin2, std::string MonsterPin3, std::string MonsterPin4, std::string boss);
 	static cocos2d::Layer* create(std::string MonsterPin1, std::string MonsterPin2, std::string MonsterPin3, std::string MonsterPin4, std::string boss);
@@ -26,7 +27,8 @@ public:
 	void menuCallback(cocos2d::Ref* pSender);
 
 	bool toucheTheCenterOfZhuanpanThePosition(float x,float y);
-
+	void playerWin();
+	void playerLose();
 	void setEmitterPosition();
 	virtual void update(float dt);
 	
@@ -34,7 +36,7 @@ public:
 
 private:
 	void beAttacked();
-
+	int bossHP = 4;
 	Sprite* theBoss;
 	SpriteBatchNode * CrystalPin;
 	ParticleSystemQuad*    Partical_Emitter;

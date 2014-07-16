@@ -11,19 +11,18 @@
 using namespace std;
 class Monster {
 private:
-	string Name;
-	string Description;
-	int Level;
-	int Exp;
-	int HP;
-	int Str;//力量，决定攻击力
-	int Dex;//敏捷，决定闪避和暴击
-	int Con;//体力，决定HP和防御
-	int Recovery;
-	int Attack;
-	int Defense;
-	int Avoid;
-	int Critical;
+	string name;
+	string description;
+	string race;
+	int level;
+	int experence;
+	int hp_total;
+	int hp_now;
+	int power;
+	int speed;
+	int dodge_rate;
+	int critical_hit_rate;
+
 public:
 	Monster(string name);
 	void setDescription(string description);

@@ -6,6 +6,7 @@
  */
 #define circlesToTurn 6
 #include "UtilFadeRotateRy.h"
+#include <cstdlib>
 USING_NS_CC;
 
 Sequence* UtilFadeRotateRy::create(float deltaAngle,float time){
@@ -13,7 +14,7 @@ Sequence* UtilFadeRotateRy::create(float deltaAngle,float time){
 	auto r3 = RotateBy::create(time / 16, 60);
 	auto r4 = RotateBy::create(time / 16, 105);
 	auto r5 = RotateBy::create(time / 16, 150);
-
+	
 	auto r6 = RotateBy::create(time/2, circlesToTurn * 360 + deltaAngle);
 	auto r7 = RotateBy::create(time / 16, 150);
 	auto r8 = RotateBy::create(time / 16, 105);

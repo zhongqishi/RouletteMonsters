@@ -1,6 +1,8 @@
 #include "LayerLevelSelection.h"
 #include "Resources.h"
 #include "SceneGame.h"
+#include "Monster.h"
+
 #include <string>
 USING_NS_CC;
 
@@ -49,9 +51,28 @@ bool LayerLevelSelection::init()
 	// position the label on the center of the screen
 	label->setPosition(Vec2(origin.x + visibleSize.width / 2,
 		origin.y + visibleSize.height - label->getContentSize().height));
+	this->addChild(label, 1);
+	auto closeItem = MenuItemImage::create(
+		"SceneGame/CloseNormal.png",
+		"SceneGame/CloseSelected.png",
+		CC_CALLBACK_1(LayerLevelSelection::menuFunctionCallback, this));
+
+	
+	closeItem->setPosition(Vec2(origin.x + visibleSize.width/2,
+		origin.y + visibleSize.height - closeItem->getContentSize().height));
+
+
+	auto menu = Menu::create(closeItem, NULL);
+
+	menu->setTag(10);
+	menu->setOpacity(1);
+	this->addChild(menu, 10);
+	menu->setPosition(Vec2::ZERO);
+	
+
 
 	// add the label as a child to this layer
-	this->addChild(label, 1);
+	
 
 
 	auto btn_function1 = MenuItemImage::create(
@@ -100,12 +121,28 @@ bool LayerLevelSelection::init()
 	return true;
 }
 
-
+int i = 2;
 
 void LayerLevelSelection::menuFunctionCallback(Ref* pSender)
 {
-	//SceneGame::createSceneGame();
-	auto s = SceneGame::createScene("pin1.png", "pin2.png", "pin1.png", "pin2.png", "demoboss.png");
-	Director::sharedDirector()->replaceScene(TransitionFade::create(1,s));
+	if (i == 0){
+		getChildByTag(10)->runAction(FadeIn::create(0.5));
+		i++;
+	}
+	else{
+		/*
+		auto level = GameLevel();
+		level.setMonster1(&SlimeFire(true, 100));
+		level.setMonster1(&SlimeWater(true, 100));
+		level.setMonster1(&BlackDragonBaby(true, 100));
+		level.setMonster1(&BlackDragonBaby(true, 100));
+		level.setMonster1(&LvBu(true, 100));
+		*/
+		//SceneGame::createSceneGame();	
+ 
+		//auto s = SceneGame::createScene(&SlimeWater(true, 100), &PrincessShieldWaerqili(false, 100), &GoddessOfLoveVenus(false, 100), &Archdemon(false, 100));
+		auto s = SceneGame::createScene(new GodnessMinerva(false, 100), new PrincessShieldWaerqili(false, 100), new GoddessOfLoveVenus(false, 100), new Archdemon(false, 100));
+		Director::sharedDirector()->replaceScene(TransitionFade::create(1, s));
+	}
 }
 

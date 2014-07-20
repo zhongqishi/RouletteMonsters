@@ -1,3 +1,6 @@
+#define level_background -4
+#define level_btn 3
+
 #include "SceneMainMenu.h"
 USING_NS_CC;
 
@@ -41,47 +44,92 @@ bool SceneMainMenu::init()
     /////////////////////////////
     // 2. add a menu item with "X" image, which is cli	cked to quit the program
     //    you may modify it.
-	auto btn_MainFunction = MenuItemImage::create(
-		"MainButton.png",
-		"MainButtonPressed.png",
+	auto btn_HomeFunction = MenuItemImage::create(
+		"MainMenu/button_home.png",
+		"MainMenu/button_home.png",
 		CC_CALLBACK_1(SceneMainMenu::menuFunctionCallback, this));
 
 
-	auto btn_function1 = MenuItemImage::create(
-		"Button.png",
-		"ButtonPressed.png",
+	auto btn_MonsterFunction = MenuItemImage::create(
+		"MainMenu/button_monster.png",
+		"MainMenu/button_monster.png",
 		CC_CALLBACK_1(SceneMainMenu::menuFunctionCallback, this));
 
-	auto btn_function2 = MenuItemImage::create(
-		"Button.png",
-		"ButtonPressed.png",
-		CC_CALLBACK_1(SceneMainMenu::menuFunctionCallback, this));
-
-
-	auto btn_function3 = MenuItemImage::create(
-		"Button.png",
-		"ButtonPressed.png",
+	auto btn_QuestFunction = MenuItemImage::create(
+		"MainMenu/button_quest.png",
+		"MainMenu/button_quest.png",
 		CC_CALLBACK_1(SceneMainMenu::menuFunctionCallback, this));
 
 
-	auto btn_function4 = MenuItemImage::create(
-		"Button.png",
-		"ButtonPressed.png",
+	auto btn_FriendFunction = MenuItemImage::create(
+		"MainMenu/button_friend.png",
+		"MainMenu/button_friend.png",
 		CC_CALLBACK_1(SceneMainMenu::menuFunctionCallback, this));
 
-	btn_function1->setTag(0);
-	btn_function2->setTag(2);
-	btn_MainFunction->setTag(1);
-	btn_function3->setTag(2);
-	btn_function4->setTag(2);
 
-	auto menu2 = Menu::create(btn_function1, btn_function2, btn_MainFunction, btn_function3, btn_function4, NULL);
-	menu2->setPosition(Vec2(origin.x + visibleSize.width / 2,
-		origin.y + btn_MainFunction->getContentSize().height / 2));
+	auto btn_ShopFunction = MenuItemImage::create(
+		"MainMenu/button_shop.png",
+		"MainMenu/button_shop.png",
+		CC_CALLBACK_1(SceneMainMenu::menuFunctionCallback, this));
 
-	menu2->alignItemsHorizontallyWithPadding(10);
+	auto btn_OptionFunction = MenuItemImage::create(
+		"MainMenu/button_option.png",
+		"MainMenu/button_option.png",
+		CC_CALLBACK_1(SceneMainMenu::menuFunctionCallback, this));
+
+	level_background;
+
+	btn_HomeFunction->setTag(0);
+	btn_MonsterFunction->setTag(2);
+	btn_QuestFunction->setTag(1);
+	btn_FriendFunction->setTag(2);
+	btn_ShopFunction->setTag(2);
+	btn_OptionFunction->setTag(2);
+
+	float scal;
+
+	if (visibleSize.height < visibleSize.width){
+		scal = (visibleSize.height / 8) / btn_HomeFunction->getContentSize().height;
+	}
+	else {
+		scal = (visibleSize.width/6) / btn_HomeFunction->getContentSize().width;
+	}
+
+
+	btn_HomeFunction->setScale(scal);
+	btn_MonsterFunction->setScale(scal);
+	btn_QuestFunction->setScale(scal);
+	btn_FriendFunction->setScale(scal);
+	btn_ShopFunction->setScale(scal);
+	btn_OptionFunction->setScale(scal);
+
+	
+	btn_HomeFunction->setAnchorPoint(Vec2(0.5, -0.02));
+	btn_MonsterFunction->setAnchorPoint(Vec2(0.5, -0.02));
+	btn_QuestFunction->setAnchorPoint(Vec2(0.5, -0.02));
+	btn_FriendFunction->setAnchorPoint(Vec2(0.5, -0.02));
+	btn_ShopFunction->setAnchorPoint(Vec2(0.5, -0.02));
+	btn_OptionFunction->setAnchorPoint(Vec2(0.5, -0.02));
+
+	auto menu2 = Menu::create(btn_HomeFunction, btn_MonsterFunction, btn_QuestFunction, btn_FriendFunction, btn_ShopFunction, btn_OptionFunction, NULL);
+	
+
+	menu2->setPosition(Vec2(visibleSize.width / 2 + origin.x, 0));
+	//menu2->alignItemsHorizontally();
+	menu2->alignItemsHorizontallyWithPadding(0);
 	menu2->setAnchorPoint(Vec2::ZERO);
-	this->addChild(menu2,3);
+
+	this->addChild(menu2, level_btn);
+
+	auto sprite = Sprite::create("MainMenu/buttons_behindbar.png");
+	sprite->setScale(scal);
+	// position the sprite on the center of the screen
+	sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, 0));
+	sprite->setAnchorPoint(Vec2(0.5,0.07));
+	// add the sprite as a child to this layer
+	this->addChild(sprite, 2);
+
+
 
     // add a "close" icon to exit the progress. it's an autorelease object
     auto closeItem = MenuItemImage::create(

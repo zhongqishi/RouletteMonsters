@@ -12,12 +12,12 @@ USING_NS_CC;
 Sequence* UtilFadeRotateRy::create(float deltaAngle,float time){
 	auto r2 = RotateBy::create(time/16, 30);
 	auto r3 = RotateBy::create(time / 16, 60);
-	auto r4 = RotateBy::create(time / 16, 105);
-	auto r5 = RotateBy::create(time / 16, 150);
+	auto r4 = RotateBy::create(time / 16, 110);
+	auto r5 = RotateBy::create(time / 16, 160);
 	
 	auto r6 = RotateBy::create(time/2, circlesToTurn * 360 + deltaAngle);
-	auto r7 = RotateBy::create(time / 16, 150);
-	auto r8 = RotateBy::create(time / 16, 105);
+	auto r7 = RotateBy::create(time / 16, 160);
+	auto r8 = RotateBy::create(time / 16, 150);
 
 	auto r9 = RotateBy::create(time / 16, 60);
 	auto r10 = RotateBy::create(time / 16, 30);

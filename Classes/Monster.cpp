@@ -7,11 +7,16 @@
 
 
 #include "Monster.h"
+#include "AttackMessage.h"
 #include <cstdlib>
+
+
 /*
 Monster
 */
 int normal_attack = 20;
+int property_enhance = 2;
+int enemy_enhance = 2;
 Monster::Monster(){
 	this->alive = true;
 }
@@ -21,6 +26,15 @@ void Monster::monster_setDescription(string description){
 void Monster::monster_setLevel(int level){
 
 }
+
+int Monster::monster_get_mosnter_type(){
+	return this->monster_type;
+}
+
+string Monster::getAttackPng(){
+	return this->attack_effect_png;
+}
+
 string Monster::getName(){
 	return this->name;
 }
@@ -55,12 +69,16 @@ int Monster::monster_getRacePerporty(){
 }
 
 
-float Monster::monster_AttackOthers(){
-	return 1.1f;
+AttackMessage* Monster::monster_AttackOthers(){
+	return NULL;
 }
 
-float Monster::monster_AttackOthers(int number){
-	return 1.1f;
+AttackMessage* Monster::monster_AttackOthers(AttackMessage* message){
+	return message;
+}
+
+bool Monster::monster_beAttackedBy(int number, int race_property, bool player){
+	return false;
 }
 
 Monster::~Monster(){
@@ -84,13 +102,13 @@ P实际值公式：P实际值=（P*2+5）*LV/10
 */
 SlimeFire::SlimeFire(bool enemy, int level):Monster(){
 	name = "SlimeFire";
-	
+	attack_effect_png = "fire";
 	this->level = 100;
 	race_property = 1;
 	hp_point = 25;
 	hp_now = (hp_point * 2 + level)*level / 10 + 1000;
 	if (enemy){
-		hp_now = hp_now * 2;
+		hp_now = hp_now * enemy_enhance;
 	}
 	hp_total = hp_now;
 	power_point = 25;
@@ -99,22 +117,30 @@ SlimeFire::SlimeFire(bool enemy, int level):Monster(){
 
 }
 
-int SlimeFire::beAttackedBy(int number, int race_property, bool player){
+bool SlimeFire::monster_beAttackedBy(int number, int race_property, bool player){
 	if (race_property == 2&&!player)
-		hp_now = hp_now - number * 2;
+		hp_now = hp_now - number * property_enhance;
 	else
 		hp_now = hp_now - number;
-	return hp_now;
+	if (hp_now <= 0){
+		hp_now = 0;
+		this->alive = false;
+	}
+	return (race_property == 2 && !player);
 }
 
-float SlimeFire::monster_AttackOthers(){
+AttackMessage* SlimeFire::monster_AttackOthers(){
 	if (buffed)
 		buff_time--;
-	if (buff_time <= 0){
+	if (buff_time < 0){
 		buffed = false;
 		power = power / times_power;
 	}
-	return normal_attack*level*1.1 *power / ((power + 10) / 5);
+	AttackMessage* msg = AttackMessage::createMessage();
+	msg->setType(1);
+	msg->setEffect(normal_attack*level*1.1 *power / ((power + 10) * 5));
+
+	return msg;
 }
 
 /* 史莱姆 水*/
@@ -122,13 +148,13 @@ float SlimeFire::monster_AttackOthers(){
 SlimeWater::SlimeWater(bool enemy, int level) :Monster(){
 	
 	name = "SlimeWater";
-
+	attack_effect_png = "water";
 	this->level = 100;
 	race_property =2;
 	hp_point = 25;
 	hp_now = (hp_point * 2 + level)*level / 10 + 1000;
 	if (enemy){
-		hp_now = hp_now * 2;
+		hp_now = hp_now * enemy_enhance;
 	}
 	hp_total = hp_now;
 	power_point = 25;
@@ -137,56 +163,75 @@ SlimeWater::SlimeWater(bool enemy, int level) :Monster(){
 
 }
 
-int SlimeWater::beAttackedBy(int number, int race_property, bool player){
+bool SlimeWater::monster_beAttackedBy(int number, int race_property, bool player){
 	if (race_property == 3 && !player)
-		hp_now = hp_now - number * 2;
+		hp_now = hp_now - number * property_enhance;
 	else
 		hp_now = hp_now - number;
-	return hp_now;
+	if (hp_now <= 0){
+		hp_now = 0;
+		this->alive = false;
+	}
+	return (race_property == 3 && !player);
 }
 
-float SlimeWater::monster_AttackOthers(){
+AttackMessage* SlimeWater::monster_AttackOthers(){
 	if (buffed)
 		buff_time--;
-	if (buff_time <= 0){
+	if (buff_time < 0){
 		buffed = false;
 		power = power / times_power;
 	}
-	return normal_attack*level*1.1 *power / ((power + 10) / 5);
+
+	AttackMessage* msg = AttackMessage::createMessage();
+	msg->setType(1);
+	msg->setEffect(normal_attack*level*1.1 *power / ((power + 10) * 5));
+
+	return msg;
+
 }
 
 /*黑龙宝宝*/
 BlackDragonBaby::BlackDragonBaby(bool enemy, int level) :Monster(){
 	name = "BlackDragonBaby";
-
+	attack_effect_png = "dark";
 	this->level = 100;
 	race_property = 6;
 	hp_point = 30;
 	hp_now = (hp_point * 2 + level)*level / 10 + 1000;
 	if (enemy){
-		hp_now = hp_now * 2;
+		hp_now = hp_now * enemy_enhance;
 	}
 	hp_total = hp_now;
 	power_point = 30;
 	power = (power_point * 2 + 5)*level / 10;
 }
 
-int BlackDragonBaby::beAttackedBy(int number, int race_property, bool player){
+bool BlackDragonBaby::monster_beAttackedBy(int number, int race_property, bool player){
 	if (race_property == 5 && !player)
-		hp_now = hp_now - number * 2;
+		hp_now = hp_now - number * property_enhance;
 	else
 		hp_now = hp_now - number;
-	return hp_now;
+	if (hp_now <= 0){
+		hp_now = 0;
+		this->alive = false;
+	}
+	return (race_property == 5 && !player);
 }
 
-float BlackDragonBaby::monster_AttackOthers(){
+AttackMessage* BlackDragonBaby::monster_AttackOthers(){
 	if (buffed)
 		buff_time--;
-	if (buff_time <= 0){
+	if (buff_time < 0){
 		buffed = false;
 		power = power / times_power;
 	}
-	return normal_attack*level*1.1 *power / ((power + 10) / 5);
+	AttackMessage* msg = AttackMessage::createMessage();
+	msg->setType(1);
+	msg->setEffect(normal_attack*level*1.1 *power / ((power + 10) * 5));
+
+	return msg;
+	
 }
 
 /*吕布*/
@@ -196,45 +241,63 @@ LvBu::LvBu(bool enemy, int level) :Monster(){
 	energy = 0;
 	spiral_burst_light = 0;
 	energy_limit = 3;
+	attack_effect_png = "lvbu";
+	monster_type = 1;
 	spiral_burst_limit = 5;
 	this->level = 100;
 	race_property = 6;
 	hp_point = 60;
 	hp_now = (hp_point * 2 + level)*level / 10 + 1000;
 	if (enemy){
-		hp_now = hp_now * 2;
+		hp_now = hp_now * enemy_enhance;
 	}
 	hp_total = hp_now;
 	power_point = 70;
 	power = (power_point * 2 + 5)*level / 10;
 }
 
-int LvBu::beAttackedBy(int number, int race_property, bool player){
+bool LvBu::monster_beAttackedBy(int number, int race_property, bool player){
 	if (race_property == 5 && !player)
-		hp_now = hp_now - number * 2;
+		hp_now = hp_now - number * property_enhance;
 	else
 		hp_now = hp_now - number;
-	return hp_now;
+	if (hp_now <= 0){
+		hp_now = 0;
+		this->alive = false;
+	}
+	return (race_property == 5 && !player);
 }
 
-float LvBu::monster_AttackOthers(){
+AttackMessage* LvBu::monster_AttackOthers(){
 	if (buffed)
 		buff_time--;
 	if (buff_time < 0){
 		buffed = false;
 		power = power / times_power;
 	}
+	AttackMessage* msg = AttackMessage::createMessage();
+
+
 
 	if (spiral_burst_light == spiral_burst_limit){
 		spiral_burst_light = 0;
 		this->monster_setPower(2, 1);
-		return 0;
+		msg->setEffect(0);
+		msg->setSkillProperty(0);
+		msg->setType(5);
+		msg->setSkillEffectNo(4);
+		return msg;
 	}
 
 	if (energy >= energy_limit){
 		energy = 0;
 		spiral_burst_light++;
-		return 140 * level*1.1 *power / ((power + 10) / 5);
+		msg->setEffect(140 * level*1.1 *power / ((power + 10) * 5));
+		msg->setSkillProperty(6);
+		msg->setType(4);
+		msg->setSkillEffectNo(1);
+
+		return msg;
 	}
 
 	spiral_burst_light++;
@@ -243,13 +306,25 @@ float LvBu::monster_AttackOthers(){
 	int temp = rand() % 100;
 	
 	if (temp <= 55){
-		return 70 * level*1.1 *power / ((power + 10) / 5);
+		msg->setEffect(70 * level*1.1 *power / ((power + 10) * 5));
+		msg->setSkillProperty(6);
+		msg->setType(2);
+		msg->setSkillEffectNo(1);
+		return msg;
 	}
 	else if (temp <= 70){
-		return 0;
+		msg->setEffect(0);
+		msg->setSkillProperty(0);
+		msg->setType(3);
+		msg->setSkillEffectNo(0);
+		return msg;
 	}
 	else{
-		return normal_attack * level*1.1 *power / ((power + 10) / 5);
+		msg->setEffect(normal_attack * level*1.1 *power / ((power + 10) * 5));
+		msg->setSkillProperty(0);
+		msg->setType(1);
+		msg->setSkillEffectNo(1);
+		return msg; 
 	}
 
 }
@@ -258,7 +333,7 @@ GodnessMinerva::GodnessMinerva(bool enemy, int level) :Monster(){
 	Monster();
 	name = "GodnessMinerva";
 	this->level = 100;
-
+	monster_type = 1;
 	energy = 0;
 	spiral_burst_light = 0;
 	energy_limit = 2;
@@ -267,43 +342,77 @@ GodnessMinerva::GodnessMinerva(bool enemy, int level) :Monster(){
 	hp_point = 50;
 	hp_now = (hp_point * 2 + level)*level / 10 + 1000;
 	if (enemy){
-		hp_now = hp_now * 2;
+		hp_now = hp_now * enemy_enhance;
 	}
 	hp_total = hp_now;
 	power_point = 60;
 	power = (power_point * 2 + 5)*level / 10;
 }
 
-int GodnessMinerva::beAttackedBy(int number, int race_property,bool player){
+bool GodnessMinerva::monster_beAttackedBy(int number, int race_property, bool player){
 	if (race_property == 6 && !player)
-		hp_now = hp_now - number * 2;
+		hp_now = hp_now - number * property_enhance;
 	else
 		hp_now = hp_now - number;
-	return hp_now;
+	if (hp_now <= 0){
+		hp_now = 0;
+		this->alive = false;
+	}
+	return (race_property == 6 && !player);
 }
 
-float GodnessMinerva::monster_AttackOthers(int number){
+AttackMessage* GodnessMinerva::monster_AttackOthers(AttackMessage* message){
 	if (buffed)
 		buff_time--;
 	if (buff_time < 0){
 		buffed = false;
 		power = power / times_power;
 	}
-	switch (number){
-	case 1:return (int)(normal_attack * level*1.1 *power / ((power + 10) / 5)); break;//普通攻击
-	case 2:return (int)(40 * level*1.1 *power / ((power + 10) / 5))+0.5f; break;//主技能
-	case 3:return -0.1f; break;//副技能
-	case 4:return (int)(60 * level*1.1 *power / ((power + 10) / 5)) + 0.5f; break;//必杀
-	case 5:return (int)(100 * level*1.1 *power / ((power + 10) / 5)) + 0.5f;//Sprial Burst
+	AttackMessage* msg = AttackMessage::createMessage();
+	switch (message->getType()){
+	case 1://普通攻击
+		msg->setEffect(normal_attack * level*1.1 *power / ((power + 10) * 5));
+		msg->setSkillProperty(0);
+		msg->setSkillEffectNo(1);
+		msg->setType(1);
+		break;
+	case 2://主技能
+		msg->setEffect((40 * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(1);
+		msg->setType(2);
+		break;
+	case 3://副技能
+		msg->setEffect(0.1f);
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(6);
+		msg->setType(3);
+		break;
+	case 4://必杀
+		msg->setEffect((60 * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(1);
+		msg->setType(4);
+		break;
+		
+	case 5://Sprial Burst
+		msg->setEffect((100 * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(1);
+		msg->setType(5);
+		break;
+	
 	}
+
+	return msg;
 }
 
 /*纯白之盾瓦尔奇莉公主*/
 
-PrincessShieldWaerqili::PrincessShieldWaerqili(bool enemy, int level) :Monster(){
+PrincessShieldWaerqili::PrincessShieldWaerqili(bool enemy, int level):Monster(){
 	name = "PrincessShieldWaerqili";
 	this->level = 100;
-
+	monster_type = 2;
 	energy = 0;
 	spiral_burst_light = 0;
 	energy_limit = 3;
@@ -312,41 +421,77 @@ PrincessShieldWaerqili::PrincessShieldWaerqili(bool enemy, int level) :Monster()
 	hp_point = 70;
 	hp_now = (hp_point * 2 + level)*level / 10 + 1000;
 	if (enemy){
-		hp_now = hp_now * 2;
+		hp_now = hp_now * enemy_enhance;
 	}
 	hp_total = hp_now;
 	power_point = 40;
 	power = (power_point * 2 + 5)*level / 10;
 }
-int PrincessShieldWaerqili::beAttackedBy(int number, int race_property, bool player){
+
+bool PrincessShieldWaerqili::monster_beAttackedBy(int number, int race_property, bool player){
 	if (race_property == 6 && !player)
-		hp_now = hp_now - number * 2;
+		hp_now = hp_now - number * property_enhance;
 	else
 		hp_now = hp_now - number;
-	return hp_now;
+	if (hp_now <= 0){
+		hp_now = 0;
+		this->alive = false;
+	}
+	return (race_property == 6 && !player);
 }
 
-float PrincessShieldWaerqili::monster_AttackOthers(int number){
+AttackMessage* PrincessShieldWaerqili::monster_AttackOthers(AttackMessage* message){
 	if (buffed)
 		buff_time--;
 	if (buff_time < 0){
 		buffed = false;
 		power = power / times_power;
 	}
-	switch (number){
-		case 1:return (int)(normal_attack * level*1.1 *power / ((power + 10) / 5)); break;//普通攻击
-		case 2:return -0.2f; break;//主技能;
-		case 3:return (int)(20 * level*1.1 *power / ((power + 10) / 5))+0.5f; break;//副技能
-		case 4:return -0.4f; break;//必杀
-		case 5:return -0.0015f; break;//Sprial Burst  
+
+	AttackMessage* msg = AttackMessage::createMessage();
+	switch (message->getType()){
+	case 1://普通攻击
+		msg->setEffect((normal_attack * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(0);
+		msg->setSkillEffectNo(1);
+		msg->setType(1);
+		break;
+	case 2://主技能
+		msg->setEffect(0.2f);
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(6);
+		msg->setType(2);
+		break;
+	case 3://副技能
+		msg->setEffect(20 * level*1.1 *power / ((power + 10) * 5));
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(1);
+		msg->setType(3);
+		break;
+	case 4://必杀
+		msg->setEffect(0.4f);
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(6);
+		msg->setType(4);
+		break;
+
+	case 5://Sprial Burst
+		msg->setEffect(0);
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(3);
+		msg->setEffectiveTime(1);
+		msg->setType(5);
+		break;
+
 	}
+	return msg;
 }
 
 /*慈爱神维纳斯*/
 GoddessOfLoveVenus::GoddessOfLoveVenus(bool enemy, int level) :Monster(){
 	name = "GoddessOfLoveVenus";
 	this->level = 100;
-
+	monster_type = 2;
 	energy = 0;
 	spiral_burst_light = 0;
 	energy_limit = 2;
@@ -355,7 +500,7 @@ GoddessOfLoveVenus::GoddessOfLoveVenus(bool enemy, int level) :Monster(){
 	hp_point = 70;
 	hp_now = (hp_point * 2 + level)*level / 10 + 1000;
 	if (enemy){
-		hp_now = hp_now * 2;
+		hp_now = hp_now * enemy_enhance;
 	}
 	hp_total = hp_now;
 	power_point = 40;
@@ -363,35 +508,72 @@ GoddessOfLoveVenus::GoddessOfLoveVenus(bool enemy, int level) :Monster(){
 
 }
 
-int GoddessOfLoveVenus::beAttackedBy(int number, int race_property, bool player){
+bool GoddessOfLoveVenus::monster_beAttackedBy(int number, int race_property, bool player){
 	if (race_property == 6 && !player)
-		hp_now = hp_now - number * 2;
+		hp_now = hp_now - number * property_enhance;
 	else
 		hp_now = hp_now - number;
-	return hp_now;
+	if (hp_now <= 0){
+		hp_now = 0;
+		this->alive = false;
+	}
+	return  (race_property == 6 && !player);
 }
 
-float GoddessOfLoveVenus::monster_AttackOthers(int number){
+AttackMessage* GoddessOfLoveVenus::monster_AttackOthers(AttackMessage* message){
 	if (buffed)
 		buff_time--;
 	if (buff_time < 0){
 		buffed = false;
 		power = power / times_power;
 	}
-	switch (number){
-		case 1:return (int)(normal_attack * level*1.1 *power / ((power + 10) / 5)); break;//普通攻击
-		case 2:return -0.2f; break;//主技能;
-		case 3:return (int)(20 * level*1.1 *power / ((power + 10) / 5))+0.5f; break; break;//副技能
-		case 4:return -0.00101f; break;//必杀
-		case 5:return -0.00255f; break;//Sprial Burst  
+
+	AttackMessage* msg = AttackMessage::createMessage();
+	switch (message->getType()){
+	case 1://普通攻击
+		msg->setEffect((normal_attack * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(0);
+		msg->setSkillEffectNo(1);
+		msg->setType(1);
+		break;
+	case 2://主技能
+		msg->setEffect(0.2f);
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(6);
+		msg->setType(2);
+		break;
+	case 3://副技能
+		msg->setEffect(20 * level*1.1 *power / ((power + 10) * 5));
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(1);
+		msg->setType(3);
+		break;
+	case 4://必杀
+		msg->setEffect(0.9f);
+		msg->setSkillProperty(5);
+		msg->setEffectiveTime(1);
+		msg->setSkillEffectNo(3);
+		msg->setType(4);
+		break;
+
+	case 5://Sprial Burst
+		msg->setEffect(1.5f);
+		msg->setSkillProperty(5);
+		msg->setSkillEffectNo(4);
+		msg->setEffectiveTime(1);
+		msg->setType(5);
+		break;
+
 	}
+	return msg;
+
 }
 /*大魔王撒旦*/
 
 Archdemon::Archdemon(bool enemy, int level) :Monster(){
 	name = "Archdemon";
 	this->level = 100;
-
+	monster_type = 1;
 	energy = 0;
 	spiral_burst_light = 0;
 	energy_limit = 3;
@@ -400,7 +582,7 @@ Archdemon::Archdemon(bool enemy, int level) :Monster(){
 	hp_point = 60;
 	hp_now = (hp_point * 2 + level)*level / 10 + 1000;
 	if (enemy){
-		hp_now = hp_now * 2;
+		hp_now = hp_now * enemy_enhance;
 	}
 	hp_total = hp_now;
 	power_point = 60;
@@ -408,26 +590,61 @@ Archdemon::Archdemon(bool enemy, int level) :Monster(){
 
 }
 
-int Archdemon::beAttackedBy(int number, int race_property, bool player){
+bool Archdemon::monster_beAttackedBy(int number, int race_property, bool player){
 	if (race_property == 5&& !player)
-		hp_now = hp_now - number * 2;
+		hp_now = hp_now - number * property_enhance;
 	else
 		hp_now = hp_now - number;
-	return hp_now;
+	if (hp_now <= 0){
+		hp_now = 0;
+		this->alive = false;
+	}
+	return (race_property == 5 && !player);
 }
 
-float Archdemon::monster_AttackOthers(int number){
+AttackMessage* Archdemon::monster_AttackOthers(AttackMessage* message){
 	if (buffed)
 		buff_time--;
 	if (buff_time < 0){
 		buffed = false;
 		power = power / times_power;
 	}
-	switch (number){
-		case 1:return (int)(normal_attack * level*1.1 *power / ((power + 10) / 5)); break;//普通攻击
-		case 2:return (int)(60 * level*1.1 *power / ((power + 10) / 5)) + 0.6f; break;//主技能;
-		case 3:return 0; break; //副技能
-		case 4:return (int)(100 * level*1.1 *power / ((power + 10) / 5)) + 0.6f; break;//必杀
-		case 5:return (int)(140 * level*1.1 *power / ((power + 10) / 5)) + 0.6f; break;//Sprial Burst  
+
+	AttackMessage* msg = AttackMessage::createMessage();
+	switch (message->getType()){
+	case 1://普通攻击
+		msg->setEffect((normal_attack * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(0);
+		msg->setSkillEffectNo(1);
+		msg->setType(1);
+		break;
+	case 2://主技能
+		msg->setEffect((60 * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(6);
+		msg->setSkillEffectNo(1);
+		msg->setType(2);
+		break;
+	case 3://副技能
+		msg->setEffect(0);
+		msg->setSkillProperty(6);
+		msg->setSkillEffectNo(0);
+		msg->setType(3);
+		break;
+	case 4://必杀
+		msg->setEffect((100 * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(6);
+		msg->setSkillEffectNo(1);
+		msg->setType(4);
+		break;
+
+	case 5://Sprial Burst
+		msg->setEffect((140 * level*1.1 *power / ((power + 10) * 5)));
+		msg->setSkillProperty(6);
+		msg->setSkillEffectNo(1);
+		msg->setType(5);
+		break;
+
 	}
+	return msg;
+
 }

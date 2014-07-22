@@ -111,12 +111,15 @@ bool LayerLevelSelection::init()
 
 	// add "HelloWorld" splash screen"
 	auto sprite = Sprite::create("MainMenuBackground.png");
-
+	sprite->setTag(12);
 	// position the sprite on the center of the screen
 	sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
-
+	sprite->setScaleX(visibleSize.width / sprite->getContentSize().width);
 	// add the sprite as a child to this layer
-	this->addChild(sprite, 0);
+	this->addChild(sprite,0);
+
+	//创建一个数组，存储CCSpriteFrame
+	
 
 	return true;
 }
@@ -126,7 +129,21 @@ int i = 2;
 void LayerLevelSelection::menuFunctionCallback(Ref* pSender)
 {
 	if (i == 0){
-		getChildByTag(10)->runAction(FadeIn::create(0.5));
+		
+		auto animation = Animation::create();
+		for (int i = 18; i<112; i++)
+		{
+			char szName[100] = { 0 };
+			sprintf(szName, "SceneGame/animation/boss/Comp 1_%05d.png", i);
+			animation->addSpriteFrameWithFile(szName);
+		}
+
+		// should last 2.8 seconds. And there are 14 frames. 
+		animation->setDelayPerUnit(4.0f / 94.0f);
+		animation->setRestoreOriginalFrame(true);
+		auto action = Animate::create(animation);
+		getChildByTag(12)->runAction(action);
+		
 		i++;
 	}
 	else{

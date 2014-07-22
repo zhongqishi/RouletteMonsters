@@ -5,7 +5,7 @@
 #include "string"
 #include "Resources.h"
 #include "Monster.h"
-
+#include "AttackMessage.h"
 USING_NS_CC;
 
 class SceneGame : public cocos2d::Layer
@@ -30,6 +30,7 @@ public:
 	// implement the "static create()" method manually
 
 private:
+	AttackMessage* msg;
 
 	Monster* PlayerMonster1;
 	Monster* PlayerMonster2;
@@ -41,32 +42,27 @@ private:
 	Monster* monster3;
 	Monster* monster4;
 	Monster* monster5;
-
-	void beAttacked();
-	void enterLevelOne();
-	void enterLevelTwo();
-	void enterLevelThree();
+	
+	
+	int accumulated_angle=0;
 	int level = 0;
 	int spiral_light_num = 0;
 	int playerHP = 100;
 	int player_hp_total = 100;
-	
 
 	int Player_monster1_energy = 0;
 	int Player_monster2_energy = 0;
 	int Player_monster3_energy = 0;
 	int Player_monster4_energy = 0;
 
-
-
-	std::string skillbox1;
-	std::string skillbox2;
-	std::string skillbox3;
-	std::string skillbox4;
-	std::string skillbox5;
-	std::string skillbox6;
-	std::string skillbox7;
-	std::string skillbox8;
+	std::string skillbox1 = "attack";
+	std::string skillbox2 = "charge";
+	std::string skillbox3 = "attack";
+	std::string skillbox4 = "sub";
+	std::string skillbox5 = "main";
+	std::string skillbox6 = "attack";
+	std::string skillbox7 = "sub";
+	std::string skillbox8 = "main";
 	
 	SpriteBatchNode * CrystalPin;
 	ParticleSystemQuad*    partical_system_zhuanpan_decorate;
@@ -90,8 +86,9 @@ private:
 	void monster3_pin_Callback(cocos2d::Ref* pSender);
 	void monster4_pin_Callback(cocos2d::Ref* pSender);
 	void zhuanpan_center_Callback(cocos2d::Ref* pSender);
-	void spiral_burst_pin_show();
 
+
+	void spiral_burst_pin_show();
 	void spiral_burst_light_turn_on(bool turn_on);
 
 	void show_monster1_hp(bool show);
@@ -100,7 +97,21 @@ private:
 	void show_monster4_hp(bool show);
 	void show_monster5_hp(bool show);
 
-	void specialAttack(float number);
+	void enterLevelOne();
+	void enterLevelTwo();
+	void enterLevelThree();
+
+	void nomralZhuanPanSkillAction(AttackMessage* received_msg);
+	void specialAttack(AttackMessage* received_msg, Monster* monster);
+	void AttackByEnemy();
+	void zhuanpanActionFinished();
+
+	void effect_Heal(Size visibleSize);
+	void effect_Enhance(Size visibleSize);
+	void effect_Debuff(Size visibleSize);
+
+	void updateMonsterHP();
+	void upadtePlayerHP();
 	
 };
 

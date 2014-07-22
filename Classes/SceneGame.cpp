@@ -219,7 +219,7 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 	closeItem->setPosition(Vec2(origin.x + visibleSize.width / 5,
 		origin.y + visibleSize.height - closeItem->getContentSize().height));
 
-	auto label2 = LabelTTF::create("", "Arial", 24);
+	auto label2 = LabelTTF::create("", "fonts/BankGothic Lt BT.ttf", 24);
 	label2->setColor(ccColor3B::GREEN);
 	label2->setPosition(Vec2(visibleSize.width * 7 / 8, visibleSize.height *3 / 5));
 	label2->setOpacity(0);
@@ -939,7 +939,7 @@ void SceneGame::initPlayerHP(){
 	std::stringstream temp;
 	temp << playerHP;
 	std::string s = temp.str();
-	auto label = LabelTTF::create(s + "/" + s, "Arial", 15);
+	auto label = LabelTTF::create(s + "/" + s, "fonts/BankGothic Lt BT.ttf", 15);
 	label->setTag(scene_game_int_tag_number_label_hp_player_text);
 	// position the label on the center of the screen
 	label->setPosition(Vec2(visibleSize.width*2 / 3, visibleSize.height * 13 / 20));
@@ -1657,7 +1657,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 	std::stringstream str_stream_temp;
 	std::string str_temp;
 	int temp = rand() % 100;
-	float a = visibleSize.height - 200 + temp;
+	float a = visibleSize.height*2/3 + temp;
 	float b = visibleSize.width/2;
 	this->addChild(splade1, Level_2);
 	splade1->setPosition(Vec2(b, visibleSize.height - temp));
@@ -1679,7 +1679,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label1->setColor(ccColor3B::RED);
 				label1->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
 				label1->setOpacity(0);
@@ -1698,7 +1698,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label2 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label2->setColor(ccColor3B::RED);
 				label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
 				label2->setOpacity(0);
@@ -1714,7 +1714,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 
 			str_temp = str_stream_temp.str();
 			if (true){
-				auto label_recover1 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label_recover1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label_recover1->setColor(ccColor3B::GREEN);
 				label_recover1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 				label_recover1->setOpacity(0);
@@ -1756,7 +1756,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect()*monster1->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
-				auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label1->setColor(ccColor3B::RED);
 				label1->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
 				label1->setOpacity(0);
@@ -1776,7 +1776,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 					str_stream_temp << "-" << received_msg->getEffect()*monster2->monster_get_hp_total();
 					str_temp = str_stream_temp.str();
 
-					auto label2 = LabelTTF::create(str_temp, "Arial", 24);
+					auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 					label2->setColor(ccColor3B::RED);
 					label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
 					label2->setOpacity(0);
@@ -1792,7 +1792,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			effect_Heal(visibleSize);
 			str_temp = str_stream_temp.str();
 
-			auto label_recover2 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label_recover2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label_recover2->setColor(ccColor3B::GREEN);
 			label_recover2->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 			label_recover2->setOpacity(0);
@@ -1819,7 +1819,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label3 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label3 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label3->setColor(ccColor3B::RED);
 				label3->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
 				label3->setOpacity(0);
@@ -1837,7 +1837,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label4 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label4 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label4->setColor(ccColor3B::RED);
 				label4->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
 				label4->setOpacity(0);
@@ -1853,7 +1853,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			effect_Heal(visibleSize);
 			str_temp = str_stream_temp.str();
 			if (true){
-				auto label_recover3 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label_recover3 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label_recover3->setColor(ccColor3B::GREEN);
 				label_recover3->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 				label_recover3->setOpacity(0);
@@ -1896,7 +1896,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect()*monster3->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
-				auto label3 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label3 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label3->setColor(ccColor3B::RED);
 				label3->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
 				label3->setOpacity(0);
@@ -1915,7 +1915,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect()*monster4->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
-				auto label4 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label4 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label4->setColor(ccColor3B::RED);
 				label4->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height *7 / 8));
 				label4->setOpacity(0);
@@ -1930,7 +1930,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			effect_Heal(visibleSize);
 			str_temp = str_stream_temp.str();
 
-			auto label_recover6 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label_recover6 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label_recover6->setColor(ccColor3B::GREEN);
 			label_recover6->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 			label_recover6->setOpacity(0);
@@ -1956,7 +1956,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label5 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label5 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label5->setColor(ccColor3B::RED);
 				label5->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 7 / 8));
 				label5->setOpacity(0);
@@ -1972,7 +1972,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 
 			str_temp = str_stream_temp.str();
 			if (true){
-				auto label_recover7 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label_recover7 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label_recover7->setColor(ccColor3B::GREEN);
 				label_recover7->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 				label_recover7->setOpacity(0);
@@ -2014,7 +2014,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 				str_stream_temp << "-" << received_msg->getEffect()*monster5->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
-				auto label5 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label5 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label5->setColor(ccColor3B::RED);
 				label5->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 7 / 8));
 				label5->setOpacity(0);
@@ -2031,7 +2031,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 
 			effect_Heal(visibleSize);
 
-			auto label_recover9 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label_recover9 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label_recover9->setColor(ccColor3B::GREEN);
 			label_recover9->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 			label_recover9->setOpacity(0);
@@ -2093,7 +2093,7 @@ void SceneGame::AttackByEnemy(){
 			str_stream_temp << "-" << msg->getEffect()*scene_game_demage_fiex;
 			str_temp = str_stream_temp.str();
 
-			auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label1->setColor(ccColor3B::RED);
 			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height *  3 / 4));
 			label1->setOpacity(0);
@@ -2114,7 +2114,7 @@ void SceneGame::AttackByEnemy(){
 			
 			str_stream_temp2 << "-" << msg->getEffect()*scene_game_demage_fiex;
 			str_temp = str_stream_temp2.str();
-			auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label1->setColor(ccColor3B::RED);
 			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 11 / 16));
 			label1->setOpacity(0);
@@ -2139,7 +2139,7 @@ void SceneGame::AttackByEnemy(){
 			str_stream_temp << "-" << msg->getEffect()*scene_game_demage_fiex;
 			str_temp = str_stream_temp.str();
 
-			auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label1->setColor(ccColor3B::RED);
 			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height *  3 / 4));
 			label1->setOpacity(0);
@@ -2161,7 +2161,7 @@ void SceneGame::AttackByEnemy(){
 
 			str_stream_temp2 << "-" << msg->getEffect()*scene_game_demage_fiex;
 			str_temp = str_stream_temp2.str();
-			auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label1->setColor(ccColor3B::RED);
 			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 11 / 16));
 			label1->setOpacity(0);
@@ -2183,7 +2183,7 @@ void SceneGame::AttackByEnemy(){
 			}
 			str_stream_temp << "-" << msg->getEffect()*scene_game_demage_fiex;
 			str_temp = str_stream_temp.str();
-			auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label1->setColor(ccColor3B::RED);
 			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height *  3 / 4));
 			label1->setOpacity(0);
@@ -2228,7 +2228,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 					str_stream_temp << "-" << received_msg->getEffect();
 					str_temp = str_stream_temp.str();
 
-					auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+					auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 					label1->setColor(ccColor3B::RED);
 					label1->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
 					label1->setOpacity(0);
@@ -2245,7 +2245,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 					str_stream_temp << "-" << received_msg->getEffect();
 					str_temp = str_stream_temp.str();
 
-					auto label2 = LabelTTF::create(str_temp, "Arial", 24);
+					auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 					label2->setColor(ccColor3B::RED);
 					label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
 					label2->setOpacity(0);
@@ -2261,7 +2261,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 
 				str_temp = str_stream_temp.str();
 				if (true){
-					auto label_recover1 = LabelTTF::create(str_temp, "Arial", 24);
+					auto label_recover1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 					label_recover1->setColor(ccColor3B::GREEN);
 					label_recover1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 					label_recover1->setOpacity(0);
@@ -2301,7 +2301,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 					str_stream_temp << "-" << received_msg->getEffect()*monster1->monster_get_hp_total();
 					str_temp = str_stream_temp.str();
 
-					auto label1 = LabelTTF::create(str_temp, "Arial", 24);
+					auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 					label1->setColor(ccColor3B::RED);
 					label1->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
 					label1->setOpacity(0);
@@ -2319,7 +2319,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 					str_stream_temp << "-" << received_msg->getEffect()*monster2->monster_get_hp_total();
 					str_temp = str_stream_temp.str();
 
-					auto label2 = LabelTTF::create(str_temp, "Arial", 24);
+					auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 					label2->setColor(ccColor3B::RED);
 					label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
 					label2->setOpacity(0);
@@ -2335,7 +2335,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 				effect_Heal(visibleSize);
 				str_temp = str_stream_temp.str();
 
-				auto label_recover2 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label_recover2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label_recover2->setColor(ccColor3B::GREEN);
 				label_recover2->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 				label_recover2->setOpacity(0);
@@ -2363,7 +2363,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label3 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label3 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label3->setColor(ccColor3B::RED);
 				label3->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
 				label3->setOpacity(0);
@@ -2380,7 +2380,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label4 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label4 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label4->setColor(ccColor3B::RED);
 				label4->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
 				label4->setOpacity(0);
@@ -2396,7 +2396,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 			effect_Heal(visibleSize);
 			str_temp = str_stream_temp.str();
 			if (true){
-				auto label_recover3 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label_recover3 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label_recover3->setColor(ccColor3B::GREEN);
 				label_recover3->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 				label_recover3->setOpacity(0);
@@ -2438,7 +2438,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 				str_stream_temp << "-" << received_msg->getEffect()*monster3->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
-				auto label3 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label3 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label3->setColor(ccColor3B::RED);
 				label3->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
 				label3->setOpacity(0);
@@ -2455,7 +2455,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 				str_stream_temp << "-" << received_msg->getEffect()*monster4->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
-				auto label4 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label4 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label4->setColor(ccColor3B::RED);
 				label4->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
 				label4->setOpacity(0);
@@ -2470,7 +2470,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 			effect_Heal(visibleSize);
 			str_temp = str_stream_temp.str();
 
-			auto label_recover6 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label_recover6 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label_recover6->setColor(ccColor3B::GREEN);
 			label_recover6->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 			label_recover6->setOpacity(0);
@@ -2497,7 +2497,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label5 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label5 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label5->setColor(ccColor3B::RED);
 				label5->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 7 / 8));
 				label5->setOpacity(0);
@@ -2513,7 +2513,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 
 			str_temp = str_stream_temp.str();
 			if (true){
-				auto label_recover7 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label_recover7 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label_recover7->setColor(ccColor3B::GREEN);
 				label_recover7->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 				label_recover7->setOpacity(0);
@@ -2554,7 +2554,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 				str_stream_temp << "-" << received_msg->getEffect()*monster5->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
-				auto label5 = LabelTTF::create(str_temp, "Arial", 24);
+				auto label5 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label5->setColor(ccColor3B::RED);
 				label5->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 7 / 8));
 				label5->setOpacity(0);
@@ -2571,7 +2571,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 
 			effect_Heal(visibleSize);
 
-			auto label_recover9 = LabelTTF::create(str_temp, "Arial", 24);
+			auto label_recover9 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label_recover9->setColor(ccColor3B::GREEN);
 			label_recover9->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
 			label_recover9->setOpacity(0);

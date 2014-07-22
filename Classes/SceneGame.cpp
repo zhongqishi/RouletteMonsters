@@ -280,14 +280,9 @@ void SceneGame::update(float dt)
 		if (scene_game_timer_scene > 60){
 			scene_game_timer_scene = 0;
 			//scene_game_timer_level_walk = 1;
+			scene_game_timer_level_walk=1;
 			//scene_game_timer_boss_alert = 1;
-			getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(FadeIn::create(0.5));
-			getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(FadeIn::create(0.5));
-			show_monster1_hp(true);
-			show_monster2_hp(true);
 		
-			scene_game_bool_player_turn = true;
-			getChildByTag(scene_game_int_tag_number_label_instruction_player_turn)->runAction(FadeIn::create(0.4f));
 		}
 	}
 	if (scene_game_bool_player_turn){
@@ -446,6 +441,17 @@ void SceneGame::update(float dt)
 		if (scene_game_timer_level_walk > 100){
 			scene_game_timer_level_walk = 0;
 			scene_game_bool_cannot_player_operate = false;
+
+			if(level==0&&monster1->monster_get_hp_now()>0){
+				getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(FadeIn::create(0.5));
+				getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(FadeIn::create(0.5));
+				show_monster1_hp(true);
+				show_monster2_hp(true);
+
+				scene_game_bool_player_turn = true;
+				getChildByTag(scene_game_int_tag_number_label_instruction_player_turn)->runAction(FadeIn::create(0.4f));
+			}
+
 			if (level == 0 && monster1->monster_get_hp_now() <= 0 && monster2->monster_get_hp_now() <= 0){
 				level = 1;
 				show_monster3_hp(true);
@@ -1301,11 +1307,11 @@ void SceneGame::initMonsters(){
 	sprite_monster4->setOpacity(0);
 	scene_game_scalNow = scal;
 
-	sprite_monster1->setPosition(Vec2(visibleSize.width / 5 + origin.x, visibleSize.height * 5 / 6));
-	sprite_monster2->setPosition(Vec2(visibleSize.width * 4 / 5 + origin.x, visibleSize.height * 5 / 6));
-	sprite_monster3->setPosition(Vec2(visibleSize.width / 5 + origin.x, visibleSize.height * 5 / 6));
-	sprite_monster4->setPosition(Vec2(visibleSize.width * 4 / 5 + origin.x, visibleSize.height * 5 / 6));
-	sprite_monster5->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height * 5 / 6));
+	sprite_monster1->setPosition(Vec2(visibleSize.width / 3 + origin.x, visibleSize.height * 7/9));
+	sprite_monster2->setPosition(Vec2(visibleSize.width * 2 / 3 + origin.x, visibleSize.height * 7/9));
+	sprite_monster3->setPosition(Vec2(visibleSize.width / 5 + origin.x, visibleSize.height * 7/9));
+	sprite_monster4->setPosition(Vec2(visibleSize.width * 2 / 3 + origin.x, visibleSize.height * 7/9));
+	sprite_monster5->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height * 7/9));
 
 	sprite_monster1->setAnchorPoint(Vec2(0.5, 0.5));
 	sprite_monster2->setAnchorPoint(Vec2(0.5, 0.5));
@@ -1328,7 +1334,7 @@ void SceneGame::initMonsters(){
 
 	float left_head = sprite_monster5_hp_bg_left->getContentSize().width / 2;
 	float right_head = sprite_monster5_hp_bg_right->getContentSize().width / 2;
-	float monster_hp_height = visibleSize.height * 5 / 6 - sprite_monster5->getContentSize().height * scal / 2;
+	float monster_hp_height = visibleSize.height * 7/9 - sprite_monster5->getContentSize().height * scal / 2;
 	float monster_hp_left = visibleSize.width / 2 - sprite_monster5_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster5_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 4;
 	float mosnter_hp_right = visibleSize.width / 2 + sprite_monster5_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster5_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 4;
 	scene_game_scale_monster5_hp = ((sprite_monster5_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster5_hp_body->getContentSize().width));
@@ -1371,9 +1377,9 @@ void SceneGame::initMonsters(){
 
 	left_head = sprite_monster1_hp_bg_left->getContentSize().width / 2;
 	right_head = sprite_monster1_hp_bg_right->getContentSize().width / 2;
-	monster_hp_height = visibleSize.height * 5 / 6 - sprite_monster1->getContentSize().height *  scal / 2;
-	monster_hp_left = visibleSize.width / 5 - sprite_monster1_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster1_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
-	mosnter_hp_right = visibleSize.width / 5 + sprite_monster1_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster1_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
+	monster_hp_height = visibleSize.height * 7/9 - sprite_monster1->getContentSize().height *  scal / 2;
+	monster_hp_left = visibleSize.width / 3 - sprite_monster1_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster1_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
+	mosnter_hp_right = visibleSize.width / 3 + sprite_monster1_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster1_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
 	scene_game_scale_monster1_hp = ((sprite_monster1_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster1_hp_body->getContentSize().width));
 
 	sprite_monster1_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1382,7 +1388,7 @@ void SceneGame::initMonsters(){
 	sprite_monster1_hp_body->setScaleX(scene_game_scale_monster1_hp);
 	sprite_monster1_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster1_hp_bg->setPosition(Vec2(visibleSize.width / 5 + origin.x, monster_hp_height));
+	sprite_monster1_hp_bg->setPosition(Vec2(visibleSize.width / 3 + origin.x, monster_hp_height));
 	sprite_monster1_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster1_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster1_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan / 2, monster_hp_height));
@@ -1411,9 +1417,9 @@ void SceneGame::initMonsters(){
 
 	left_head = sprite_monster2_hp_bg_left->getContentSize().width / 2;
 	right_head = sprite_monster2_hp_bg_right->getContentSize().width / 2;
-	monster_hp_height = visibleSize.height * 5 / 6 - sprite_monster2->getContentSize().height *  scal / 2;
-	monster_hp_left = visibleSize.width * 4 / 5 - sprite_monster2_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster2_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
-	mosnter_hp_right = visibleSize.width * 4 / 5 + sprite_monster2_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster2_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
+	monster_hp_height = visibleSize.height * 7/9 - sprite_monster2->getContentSize().height *  scal / 2;
+	monster_hp_left = visibleSize.width * 2 / 3 - sprite_monster2_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster2_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
+	mosnter_hp_right = visibleSize.width * 2 / 3 + sprite_monster2_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster2_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
 	scene_game_scale_monster2_hp = ((sprite_monster2_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster2_hp_body->getContentSize().width));
 
 	sprite_monster2_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1422,7 +1428,7 @@ void SceneGame::initMonsters(){
 	sprite_monster2_hp_body->setScaleX(scene_game_scale_monster2_hp);
 	sprite_monster2_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster2_hp_bg->setPosition(Vec2(visibleSize.width * 4 / 5 + origin.x, monster_hp_height));
+	sprite_monster2_hp_bg->setPosition(Vec2(visibleSize.width * 2 / 3 + origin.x, monster_hp_height));
 	sprite_monster2_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster2_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster2_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan / 2, monster_hp_height));
@@ -1452,9 +1458,9 @@ void SceneGame::initMonsters(){
 
 	left_head = sprite_monster3_hp_bg_left->getContentSize().width / 2;
 	right_head = sprite_monster3_hp_bg_right->getContentSize().width / 2;
-	monster_hp_height = visibleSize.height * 5 / 6 - sprite_monster3->getContentSize().height *  scal / 2;
-	monster_hp_left = visibleSize.width / 5 - sprite_monster3_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster3_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
-	mosnter_hp_right = visibleSize.width / 5 + sprite_monster3_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster3_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
+	monster_hp_height = visibleSize.height * 7/9 - sprite_monster3->getContentSize().height *  scal / 2;
+	monster_hp_left = visibleSize.width / 3 - sprite_monster3_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster3_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
+	mosnter_hp_right = visibleSize.width / 3 + sprite_monster3_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster3_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
 	scene_game_scale_monster3_hp = ((sprite_monster3_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster3_hp_body->getContentSize().width));
 
 	sprite_monster3_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1463,7 +1469,7 @@ void SceneGame::initMonsters(){
 	sprite_monster3_hp_body->setScaleX(scene_game_scale_monster3_hp);
 	sprite_monster3_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster3_hp_bg->setPosition(Vec2(visibleSize.width / 5 + origin.x, monster_hp_height));
+	sprite_monster3_hp_bg->setPosition(Vec2(visibleSize.width / 3 + origin.x, monster_hp_height));
 	sprite_monster3_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster3_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster3_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan / 2, monster_hp_height));
@@ -1492,9 +1498,9 @@ void SceneGame::initMonsters(){
 
 	left_head = sprite_monster4_hp_bg_left->getContentSize().width / 2;
 	right_head = sprite_monster4_hp_bg_right->getContentSize().width / 2;
-	monster_hp_height = visibleSize.height * 5 / 6 - sprite_monster4->getContentSize().height *  scal / 2;
-	monster_hp_left = visibleSize.width * 4 / 5 - sprite_monster4_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster4_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
-	mosnter_hp_right = visibleSize.width * 4 / 5 + sprite_monster4_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster4_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
+	monster_hp_height = visibleSize.height * 7/9 - sprite_monster4->getContentSize().height *  scal / 2;
+	monster_hp_left = visibleSize.width * 2 / 3 - sprite_monster4_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster4_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
+	mosnter_hp_right = visibleSize.width * 2 / 3 + sprite_monster4_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster4_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
 	scene_game_scale_monster4_hp = ((sprite_monster4_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster4_hp_body->getContentSize().width));
 
 	sprite_monster4_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1503,7 +1509,7 @@ void SceneGame::initMonsters(){
 	sprite_monster4_hp_body->setScaleX(scene_game_scale_monster4_hp);
 	sprite_monster4_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster4_hp_bg->setPosition(Vec2(visibleSize.width * 4 / 5 + origin.x, monster_hp_height));
+	sprite_monster4_hp_bg->setPosition(Vec2(visibleSize.width * 2 / 3 + origin.x, monster_hp_height));
 	sprite_monster4_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster4_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster4_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan / 2, monster_hp_height));

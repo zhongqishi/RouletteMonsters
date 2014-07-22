@@ -32,6 +32,7 @@ public:
 private:
 	AttackMessage* msg;
 
+
 	Monster* PlayerMonster1;
 	Monster* PlayerMonster2;
 	Monster* PlayerMonster3;

@@ -38,17 +38,18 @@ int scene_game_streak_radius=255;
 int player_attack_counter=0;
 
 /*计时器.....................*/
-int scene_game_accumulated_timer = 0;
-int scene_game_action_finished_timer = 0;
-int scene_game_scene_timer=0;
-int scene_game_attack_effect_timer = 0;
-int scene_game_enemy_timer = 0;
-int scene_game_boss_alert_timer = 0;
+int scene_game_timer_accumulated = 0;
+int scene_game_timer_action_finished = 0;
+int scene_game_timer_scene=0;
+int scene_game_timer_attack_effect = 0;
+int scene_game_timer_enemy = 0;
+int scene_game_timer_boss_alert = 0;
+int scene_game_timer_level_walk = 0;
 /*...........................*/
 int scene_game_zhuanpan_center_level[4] = {4,3,2,1};
 bool scene_game_bool_player_turn = false;
 bool scene_game_bool_touched = false;
-bool scene_game_bool_special_attack = false;
+bool scene_game_bool_cannot_player_operate = false;
 bool scene_game_bool_sprial_burst_menu_showed = false;
 
 std::string spiral_number[] = {"","1","2","3","4","5","6","7","8"};
@@ -134,6 +135,7 @@ enum
 	scene_game_int_tag_number_label_monster5_attack_text,
 
 	scene_game_int_tag_number_sprite_animate_boss,
+	scene_game_int_tag_number_sprite_animate_walkin,
 
 	scene_game_int_tag_number_attack_effect1,
 	scene_game_int_tag_number_attack_effect2,
@@ -178,8 +180,7 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 	{
 		return false;
 	}
-
-
+	Director::getInstance()->getTextureCache()->removeUnusedTextures();
 
 	msg = AttackMessage::createMessage();
 
@@ -226,7 +227,7 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 	addChild(label2, Level_3);
 	
 
-	auto sprite_animate_boss = Sprite::create("SceneGame/animation/boss/Comp 1_00018.png");
+	auto sprite_animate_boss = Sprite::create("SceneGame/animation/boss/animation_holder.png");
 
 	sprite_animate_boss->setTag(scene_game_int_tag_number_sprite_animate_boss);
 	sprite_animate_boss->setPosition(Vec2(visibleSize.width/2,visibleSize.height/2));
@@ -248,9 +249,18 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 	/*初始化小怪兽*/
 	initMonsters();
 
+
+	auto sprite_monster_bg = Sprite::create("SceneGame/monsterbg.png");
+	sprite_monster_bg->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height * 5 / 6));
+	sprite_monster_bg->setTag(scene_game_int_tag_number_sprite_animate_walkin);
+	sprite_monster_bg->setScaleX(visibleSize.width / sprite_monster_bg->getContentSize().width);
+	sprite_monster_bg->setScaleY((visibleSize.height/3)/ sprite_monster_bg->getContentSize().height);
+	this->addChild(sprite_monster_bg, Level_0);
+
 	scene_game_bool_player_turn = false;
-	scene_game_scene_timer = 1;
+	scene_game_timer_scene = 1;
 	this->scheduleUpdate();
+	//
 	return true;
 }
 
@@ -265,19 +275,19 @@ void SceneGame::setEmitterPosition()
 
 void SceneGame::update(float dt)
 {
-	if (scene_game_scene_timer != 0){	
-		scene_game_scene_timer++;
-		if (scene_game_scene_timer > 60){
-			scene_game_scene_timer = 0;
-			if (level == 0){
-				getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(FadeIn::create(0.5));
-				getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(FadeIn::create(0.5));
-				show_monster1_hp(true);
-				show_monster2_hp(true);
-				scene_game_bool_player_turn = true;
-				getChildByTag(scene_game_int_tag_number_label_instruction_player_turn)->runAction(FadeIn::create(0.4f));
-			}
-			
+	if (scene_game_timer_scene != 0){	
+		scene_game_timer_scene++;
+		if (scene_game_timer_scene > 60){
+			scene_game_timer_scene = 0;
+			//scene_game_timer_level_walk = 1;
+			//scene_game_timer_boss_alert = 1;
+			getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(FadeIn::create(0.5));
+			getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(FadeIn::create(0.5));
+			show_monster1_hp(true);
+			show_monster2_hp(true);
+		
+			scene_game_bool_player_turn = true;
+			getChildByTag(scene_game_int_tag_number_label_instruction_player_turn)->runAction(FadeIn::create(0.4f));
 		}
 	}
 	if (scene_game_bool_player_turn){
@@ -298,52 +308,52 @@ void SceneGame::update(float dt)
 
 		if (s1->numberOfRunningActions() == 0){
 			scene_game_bool_touched = false;
-			scene_game_attack_effect_timer = 1;
+			scene_game_timer_attack_effect = 1;
 			monster1_energy_accumulate();
 			monster2_energy_accumulate();
 			monster3_energy_accumulate();
 			monster4_energy_accumulate();
 		}
 	}
-	if (scene_game_attack_effect_timer != 0){
-		scene_game_attack_effect_timer++;
+	if (scene_game_timer_attack_effect != 0){
+		scene_game_timer_attack_effect++;
 		//确保每个数字比下面的timer大。。。为了显示攻击怪物的效果...
-		switch (scene_game_attack_effect_timer){
+		switch (scene_game_timer_attack_effect){
 		case 15:
 		case 25:
 		case 35:
 		case 45:updateMonsterHP(); upadtePlayerHP();
 			break;
 		}
-		if (scene_game_attack_effect_timer == 10){
+		if (scene_game_timer_attack_effect == 10){
 			player_attack_counter++;
 			zhuanpanActionFinished();		
 		}
-		if (scene_game_attack_effect_timer == 20){
+		if (scene_game_timer_attack_effect == 20){
 			player_attack_counter++;
 			zhuanpanActionFinished();
 		}
-		if (scene_game_attack_effect_timer == 30){
+		if (scene_game_timer_attack_effect == 30){
 			player_attack_counter++;
 			zhuanpanActionFinished();	
 		}
-		if (scene_game_attack_effect_timer == 40){
+		if (scene_game_timer_attack_effect == 40){
 			player_attack_counter++;
 			zhuanpanActionFinished();
 				
 		}
-		if (scene_game_attack_effect_timer > 50){
+		if (scene_game_timer_attack_effect > 50){
 
-			scene_game_action_finished_timer = 1;
-			scene_game_attack_effect_timer = 0;
+			scene_game_timer_action_finished = 1;
+			scene_game_timer_attack_effect = 0;
 			player_attack_counter = 0;
 		}
 
 	}
-	if (scene_game_accumulated_timer != 0){
-		scene_game_bool_special_attack = true;
-		scene_game_accumulated_timer++;
-		if (scene_game_accumulated_timer == 25){
+	if (scene_game_timer_accumulated != 0){
+		scene_game_bool_cannot_player_operate = true;
+		scene_game_timer_accumulated++;
+		if (scene_game_timer_accumulated == 25){
 			if (level == 0 && monster1->monster_get_hp_now() >= 0)
 				getChildByTag(scene_game_int_tag_number_sprite_hp_monster1)->runAction(ScaleTo::create(0.1f, (scene_game_scale_monster1_hp*(monster1->monster_get_hp_now()) / monster1->monster_get_hp_total()), scene_game_scalZhuanPan));
 			if (level == 0 && monster2->monster_get_hp_now() >= 0)
@@ -355,9 +365,9 @@ void SceneGame::update(float dt)
 			if (level == 2 && monster5->monster_get_hp_now() >= 0)
 				getChildByTag(scene_game_int_tag_number_sprite_hp_monster5)->runAction(ScaleTo::create(0.1f, (scene_game_scale_monster5_hp*(monster5->monster_get_hp_now()) / monster5->monster_get_hp_total()), scene_game_scalZhuanPan));
 		}
-		if (scene_game_accumulated_timer > 51){
-			scene_game_accumulated_timer = 0;
-			scene_game_bool_special_attack = false;
+		if (scene_game_timer_accumulated > 51){
+			scene_game_timer_accumulated = 0;
+			scene_game_bool_cannot_player_operate = false;
 			removeChildByTag(scene_game_int_tag_number_attack_effect_by_accumulate);
 
 			if (level == 0){
@@ -384,26 +394,26 @@ void SceneGame::update(float dt)
 			}
 
 			if (level == 0 && monster1->monster_get_hp_now() <= 0 && monster2->monster_get_hp_now() <= 0){
-				level=1;
-				show_monster3_hp(true);
-				show_monster4_hp(true);
-
-				getChildByTag(scene_game_int_tag_number_sprite_monster3)->runAction(FadeIn::create(0.2));
-				getChildByTag(scene_game_int_tag_number_sprite_monster4)->runAction(FadeIn::create(0.2));
+				scene_game_timer_level_walk = 1;
 			}
 		
 			if (level == 1 && monster3->monster_get_hp_now() <= 0 && monster4->monster_get_hp_now() <= 0){
-				show_monster5_hp(true);
-				level=2;
-				removeChildByTag(scene_game_int_tag_number_sprite_monster1);
-				removeChildByTag(scene_game_int_tag_number_sprite_monster2);
-				scene_game_boss_alert_timer = 1;
+				scene_game_timer_level_walk = 1;
 				
 			}
+			if (level == 2 && monster5->monster_get_hp_now() <= 0){
+				scene_game_timer_level_walk = 1;
+			}
 
-
+		}
+	}
+	if (scene_game_timer_level_walk!=0){
+		scene_game_timer_level_walk++;
+		if (scene_game_timer_level_walk == 2){
 			if (level == 2 && monster5->monster_get_hp_now() <= 0){
 				level = 3;
+				scene_game_timer_level_walk = 0;
+				scene_game_bool_cannot_player_operate = false;
 				show_monster5_hp(false);
 				removeChildByTag(scene_game_int_tag_number_sprite_monster3);
 				removeChildByTag(scene_game_int_tag_number_sprite_monster4);
@@ -412,55 +422,107 @@ void SceneGame::update(float dt)
 				this->addChild(spriteWin, Level_3);
 				spriteWin->setPosition(Vec2(scene_game_position[0], scene_game_position[1]));
 				spriteWin->runAction(FadeIn::create(0.2));
+				return;
 			}
-
-		}
-	}
-	if (scene_game_boss_alert_timer != 0){
-		scene_game_boss_alert_timer++;
-		scene_game_bool_special_attack = true;
-		if (scene_game_boss_alert_timer == 2){
-			auto bossAnimation_tmp = Animation::create();
-			for (int i = 18; i<112; i++)
+			scene_game_bool_cannot_player_operate = true;
+			SpriteFrameCache* pCache = SpriteFrameCache::getInstance();
+			auto animation = Animation::create();
+			for (int i = 1; i<55; i++)
 			{
 				char szName[100] = { 0 };
-				sprintf(szName, "SceneGame/animation/boss/Comp 1_%05d.png", i);
-				bossAnimation_tmp->addSpriteFrameWithFile(szName);
+				sprintf(szName, "SceneGame/animation/walkin/animation_walk%d.png", i);
+				animation->addSpriteFrameWithFile(szName);
 			}
 
 			// should last 2.8 seconds. And there are 14 frames. 
-			bossAnimation_tmp->setDelayPerUnit(3.9f / 94.0f);
-			bossAnimation_tmp->setRestoreOriginalFrame(true);
-			getChildByTag(scene_game_int_tag_number_sprite_animate_boss)->runAction(Animate::create(bossAnimation_tmp));
+			animation->setDelayPerUnit(2.5f / 54.0f);
+			animation->setRestoreOriginalFrame(true);
+			auto action = Animate::create(animation);
+
+			getChildByTag(scene_game_int_tag_number_sprite_animate_walkin)->runAction(Animate::create(animation));
+		
+		}
+		
+		if (scene_game_timer_level_walk > 100){
+			scene_game_timer_level_walk = 0;
+			scene_game_bool_cannot_player_operate = false;
+			if (level == 0 && monster1->monster_get_hp_now() <= 0 && monster2->monster_get_hp_now() <= 0){
+				level = 1;
+				show_monster3_hp(true);
+				show_monster4_hp(true);
+				scene_game_timer_level_walk = 0;
+				scene_game_bool_player_turn = true;
+				scene_game_bool_cannot_player_operate = false;
+				getChildByTag(scene_game_int_tag_number_sprite_monster3)->runAction(FadeIn::create(0.2));
+				getChildByTag(scene_game_int_tag_number_sprite_monster4)->runAction(FadeIn::create(0.2));
+			}
+
+			if (level == 1 && monster3->monster_get_hp_now() <= 0 && monster4->monster_get_hp_now() <= 0){
+				show_monster5_hp(true);
+				scene_game_timer_enemy = 0;
+				scene_game_timer_level_walk = 0;
+				scene_game_bool_player_turn = true;
+				level = 2;
+				scene_game_timer_boss_alert = 1;
+				scene_game_bool_cannot_player_operate = false;
+				removeChildByTag(scene_game_int_tag_number_sprite_monster1);
+				removeChildByTag(scene_game_int_tag_number_sprite_monster2);
+			}
+			
+			
+		}
+
+	}
+
+	if (scene_game_timer_boss_alert != 0){
+		scene_game_timer_boss_alert++;
+		if (scene_game_timer_boss_alert == 2){
+
+			scene_game_bool_cannot_player_operate = true;
+			SpriteFrameCache* pCache = SpriteFrameCache::getInstance();
+			auto animation = Animation::create();
+			for (int i = 1; i<95; i++)
+			{
+				char szName[100] = { 0 };
+				sprintf(szName, "SceneGame/animation/boss/animation_boss%d.png", i);
+				animation->addSpriteFrameWithFile(szName);
+			}
+
+			// should last 2.8 seconds. And there are 14 frames. 
+			animation->setDelayPerUnit(4.0f / 94.0f);
+			animation->setRestoreOriginalFrame(true);
+			auto action = Animate::create(animation);
+
+			getChildByTag(scene_game_int_tag_number_sprite_animate_boss)->runAction(Animate::create(animation));
 			getChildByTag(scene_game_int_tag_number_sprite_animate_boss)->setOpacity(255);
 
 		}
-		if (scene_game_boss_alert_timer == 120){
+		if (scene_game_timer_boss_alert == 120){
 			getChildByTag(scene_game_int_tag_number_sprite_monster5)->runAction(FadeIn::create(0.2));
 		}
-		if (scene_game_boss_alert_timer > 140){
-			scene_game_boss_alert_timer = 0;
+		if (scene_game_timer_boss_alert > 140){
+			scene_game_timer_boss_alert = 0;
 			getChildByTag(scene_game_int_tag_number_sprite_animate_boss)->setOpacity(0);
-			scene_game_bool_special_attack = false;
+			scene_game_bool_cannot_player_operate = false;
 		}
 	}
 
 
-	if (scene_game_enemy_timer != 0){
-		scene_game_enemy_timer++;
+	if (scene_game_timer_enemy != 0){
+		scene_game_timer_enemy++;
 		
 		scene_game_bool_player_turn = false;
-		if (scene_game_enemy_timer==4)
+		if (scene_game_timer_enemy==4)
 			AttackByEnemy();
 			
-		if (scene_game_enemy_timer == 10){
+		if (scene_game_timer_enemy == 10){
 			removeChildByTag(scene_game_int_tag_number_heal_effect);
 			removeChildByTag(scene_game_int_tag_number_enhance_effect);
 			removeChildByTag(scene_game_int_tag_number_debuff_effect);
 			getChildByTag(scene_game_int_tag_number_sprite_pin_bg)->runAction(UtilBeingAttack::create(0.2f, scene_game_scalZhuanPan));
 		}
-		if (scene_game_enemy_timer>60 && getChildByTag(scene_game_int_tag_number_sprite_pin_bg)->numberOfRunningActions() == 0){
-			scene_game_enemy_timer = 0;
+		if (scene_game_timer_enemy>60 && getChildByTag(scene_game_int_tag_number_sprite_pin_bg)->numberOfRunningActions() == 0){
+			scene_game_timer_enemy = 0;
 			scene_game_bool_player_turn = true;
 
 				removeChildByTag(scene_game_int_tag_number_label_monster1_attack_text);
@@ -477,13 +539,13 @@ void SceneGame::update(float dt)
 			spriteWin->runAction(FadeIn::create(0.2));
 		}
 	}
-	if (scene_game_action_finished_timer != 0){
-		scene_game_action_finished_timer++;
+	if (scene_game_timer_action_finished != 0){
+		scene_game_timer_action_finished++;
 		
-		if (scene_game_action_finished_timer > 11){
-			scene_game_action_finished_timer = 0;
+		if (scene_game_timer_action_finished > 11){
+			scene_game_timer_action_finished = 0;
 			scene_game_bool_player_turn = false;
-			scene_game_enemy_timer = 1;
+			scene_game_timer_enemy = 1;
 			removeChildByTag(scene_game_int_tag_number_label_player_be_attacked1_text);
 			removeChildByTag(scene_game_int_tag_number_label_player_be_attacked2_text);
 			if (spiral_light_num<8)
@@ -514,38 +576,17 @@ void SceneGame::update(float dt)
 			}
 
 			if (level == 0 && monster1->monster_get_hp_now() <= 0 && monster2->monster_get_hp_now() <= 0){
-				level = 1;
-				show_monster3_hp(true);
-				show_monster4_hp(true);
-				scene_game_enemy_timer = 0;
-				scene_game_bool_player_turn = true;
-				getChildByTag(scene_game_int_tag_number_sprite_monster3)->runAction(FadeIn::create(0.2));
-				getChildByTag(scene_game_int_tag_number_sprite_monster4)->runAction(FadeIn::create(0.2));
+				scene_game_timer_level_walk = 1;
 			}
 
 			if (level == 1 && monster3->monster_get_hp_now() <= 0 && monster4->monster_get_hp_now() <= 0){
-				show_monster5_hp(true);
-				scene_game_enemy_timer = 0;
-				scene_game_bool_player_turn = true;
-				level = 2;
-				removeChildByTag(scene_game_int_tag_number_sprite_monster1);
-				removeChildByTag(scene_game_int_tag_number_sprite_monster2);
-				scene_game_boss_alert_timer = 1;
-				
+				scene_game_timer_level_walk = 1;
+
 			}
-
-
 			if (level == 2 && monster5->monster_get_hp_now() <= 0){
-				level = 3;
-				show_monster5_hp(false);
-				removeChildByTag(scene_game_int_tag_number_sprite_monster3);
-				removeChildByTag(scene_game_int_tag_number_sprite_monster4);
-				getChildByTag(scene_game_int_tag_number_sprite_monster5)->runAction(FadeOut::create(0.2));
-				auto spriteWin = Sprite::create("SceneGame/win.png");
-				this->addChild(spriteWin, Level_3);
-				spriteWin->setPosition(Vec2(scene_game_position[0], scene_game_position[1]));
-				spriteWin->runAction(FadeIn::create(0.2));
+				scene_game_timer_level_walk = 1;
 			}
+		
 
 		}
 	}
@@ -556,7 +597,7 @@ void SceneGame::update(float dt)
 
 bool SceneGame::onTouchBegan(Touch* touch, Event  *event)
 {
-	if (!scene_game_bool_player_turn || scene_game_bool_special_attack)
+	if (!scene_game_bool_player_turn || scene_game_bool_cannot_player_operate)
 		return false;
 	if (scene_game_bool_touched)
 		return false;
@@ -591,6 +632,7 @@ void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 		getChildByTag(scene_game_int_tag_number_sprite_pin4_energy1)->runAction(UtilFadeRotateRy::create(at, scene_game_zhuanpan_action_time));
 
 		scene_game_bool_touched = true;
+		
 	}
 	else{
 		menuCallback(NULL);
@@ -660,7 +702,7 @@ void SceneGame::monster4_energy_accumulate(){
 }
 
 void SceneGame::monster1_pin_Callback(cocos2d::Ref* pSender){
-	if (!scene_game_bool_player_turn || scene_game_bool_special_attack)
+	if (!scene_game_bool_player_turn || scene_game_bool_cannot_player_operate)
 		return;
 	if (scene_game_bool_touched)
 		return;
@@ -685,7 +727,7 @@ void SceneGame::monster1_pin_Callback(cocos2d::Ref* pSender){
 }
 
 void SceneGame::monster2_pin_Callback(cocos2d::Ref* pSender){
-	if (!scene_game_bool_player_turn || scene_game_bool_special_attack)
+	if (!scene_game_bool_player_turn || scene_game_bool_cannot_player_operate)
 		return;
 	if (scene_game_bool_touched)
 		return;
@@ -709,7 +751,7 @@ void SceneGame::monster2_pin_Callback(cocos2d::Ref* pSender){
 }
 
 void SceneGame::monster3_pin_Callback(cocos2d::Ref* pSender){
-	if (!scene_game_bool_player_turn || scene_game_bool_special_attack)
+	if (!scene_game_bool_player_turn || scene_game_bool_cannot_player_operate)
 		return;
 	if (scene_game_bool_touched)
 		return;
@@ -733,7 +775,7 @@ void SceneGame::monster3_pin_Callback(cocos2d::Ref* pSender){
 }
 
 void SceneGame::monster4_pin_Callback(cocos2d::Ref* pSender){
-	if (!scene_game_bool_player_turn || scene_game_bool_special_attack)
+	if (!scene_game_bool_player_turn || scene_game_bool_cannot_player_operate)
 		return;
 	if (scene_game_bool_touched)
 		return;
@@ -1221,14 +1263,7 @@ void SceneGame::initZhuanpan(std::string scene_game_monster_pin1, std::string sc
 	spriteBg->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 3));
 	spriteBg->setScale(scal_ZhuanPan);
 	this->addChild(spriteBg, Level_0);
-	
 
-	auto sprite_monster_bg = Sprite::create("SceneGame/monsterbg.png");
-	sprite_monster_bg->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height *5 / 6));
-
-	scene_game_scale_monster_bg = spriteBg->getContentSize().width / sprite_monster_bg->getContentSize().width *scal_ZhuanPan;
-	sprite_monster_bg->setScale(scene_game_scale_monster_bg);
-	this->addChild(sprite_monster_bg, Level_0);
 	/*
 	转盘结束！
 	*/
@@ -2178,7 +2213,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 	_emitter->setEmissionRate(10000);
 	this->addChild(_emitter, 10);
 	_emitter->setPosition(Vec2(visibleSize.width / 2, 5 * visibleSize.height / 6));
-	scene_game_accumulated_timer = 1;
+	scene_game_timer_accumulated = 1;
 
 	switch (this->level){
 	case 0:{

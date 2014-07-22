@@ -1,7 +1,10 @@
 #include "AppDelegate.h"
-
+#include "AllClassLists.h"
 
 USING_NS_CC;
+
+#define DESIGN_WIDTH 1920  
+#define DESIGN_HEIGHT 1080  
 
 AppDelegate::AppDelegate() {
 
@@ -16,19 +19,21 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
-        glview = GLView::create("My Game");
+        glview = GLView::create("RouletteMonsters");
         director->setOpenGLView(glview);
+        // glview->setDesignResolutionSize(1080.0f, 1920.0f, ResolutionPolicy::NO_BORDER);
     }
 
     // turn on display FPS
-    //director->setDisplayStats(true);
+    // director->setDisplayStats(true);
 
     // set FPS. the default value is 1.0/60 if you don't call this
-    director->setAnimationInterval(1.0 / 30);
+    director->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
-    auto scene = SceneMainMenu::createScene();
-
+    auto scene = GameSceneManager::createScene();
+    // auto scene = MainScene::createScene();
+    // auto scene = MonsterBoxLayer::createScene();
     // run
     director->runWithScene(scene);
 

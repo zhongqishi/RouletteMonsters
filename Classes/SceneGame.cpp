@@ -8,8 +8,8 @@
 # define circlesToTurn     4
 # define circleTurnTime    2
 
+#include "MainScene.h"
 #include "SceneGame.h"
-#include "SceneMainMenu.h"
 #include "UtilFadeRotateRy.h"
 #include "UtilBeingAttack.h"
 #include "UtilAttackMove.h"
@@ -645,7 +645,7 @@ void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 void SceneGame::menuCallback(cocos2d::Ref* pSender){
 	if (!scene_game_bool_player_turn)
 		return;
-	auto s = SceneMainMenu::createScene();
+	auto s = MainScene::createScene();
 	
 	Director::sharedDirector()->replaceScene(TransitionFade::create(1, s));
 	

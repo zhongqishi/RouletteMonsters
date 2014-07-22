@@ -3,7 +3,6 @@
 
 #include "cocos2d.h"
 #include "string"
-#include "Resources.h"
 #include "Monster.h"
 #include "AttackMessage.h"
 USING_NS_CC;

@@ -8,7 +8,6 @@
 # define circlesToTurn     4
 # define circleTurnTime    2
 
-#include "MainScene.h"
 #include "SceneGame.h"
 #include "UtilFadeRotateRy.h"
 #include "UtilBeingAttack.h"
@@ -22,7 +21,7 @@
 USING_NS_CC;
 
 float scene_game_angle_rate = -5.0f;
-float scene_game_scalNow,scene_game_scalZhuanPan;
+float scene_game_scalNow, scene_game_scalZhuanPan;
 float scene_game_scale_monster_bg;
 float scene_game_scale_player_hp;
 float scene_game_scale_monster1_hp;
@@ -32,36 +31,47 @@ float scene_game_scale_monster4_hp;
 float scene_game_scale_monster5_hp;
 float scene_game_zhuanpan_action_time = 3.2f;
 float scene_game_position[2];
-float scene_game_demage_fiex=1;
+float scene_game_demage_fiex = 1;
+float scene_game_position_monster1[2] = { 0.33333f, 0.8f	 };
+float scene_game_position_monster2[2] = { 0.66667f, 0.8f };
+float scene_game_position_monster3[2] = { 0.33333f, 0.8f };
+float scene_game_position_monster4[2] = { 0.66667f, 0.8f };
+float scene_game_position_monster5[2] = { 0.5f, 0.8f };
+float scene_game_position_monster1_hp[2] = { 0.33333f, 0.79f };
+float scene_game_position_monster2_hp[2] = { 0.66667f, 0.79f };
+float scene_game_position_monster3_hp[2] = { 0.33333f, 0.79f };
+float scene_game_position_monster4_hp[2] = { 0.66667f, 0.79f };
+float scene_game_position_monster5_hp[2] = { 0.5f, 0.79f };
+
 int scene_game_damage_counter = 0;
-int scene_game_streak_radius=255;
-int player_attack_counter=0;
+int scene_game_streak_radius = 255;
+int player_attack_counter = 0;
 
 /*计时器.....................*/
 int scene_game_timer_accumulated = 0;
 int scene_game_timer_action_finished = 0;
-int scene_game_timer_scene=0;
+int scene_game_timer_scene = 0;
 int scene_game_timer_attack_effect = 0;
 int scene_game_timer_enemy = 0;
 int scene_game_timer_boss_alert = 0;
 int scene_game_timer_level_walk = 0;
 /*...........................*/
-int scene_game_zhuanpan_center_level[4] = {4,3,2,1};
+int scene_game_zhuanpan_center_level[4] = { 4, 3, 2, 1 };
 bool scene_game_bool_player_turn = false;
 bool scene_game_bool_touched = false;
 bool scene_game_bool_cannot_player_operate = false;
 bool scene_game_bool_sprial_burst_menu_showed = false;
 
-std::string spiral_number[] = {"","1","2","3","4","5","6","7","8"};
+std::string spiral_number[] = { "", "1", "2", "3", "4", "5", "6", "7", "8" };
 std::string string_light = "light";
 std::string string_nolight = "noLight";
 
 
 
-int skillbox_type[8] = {1,4,1,3,2,1,3,2};
+int skillbox_type[8] = { 1, 4, 1, 3, 2, 1, 3, 2 };
 
 enum
-{	
+{
 	scene_game_int_tag_number_sprite_pins,
 	scene_game_int_tag_number_sprite_pin_bg,
 	scene_game_int_tag_number_sprite_pins_spiral_burst1,
@@ -162,15 +172,15 @@ Layer* SceneGame::create(Monster* monster1, Monster* monster2, Monster* monster3
 {
 	SceneGame *ret = new SceneGame();
 	if (ret && ret->init(monster1, monster2, monster3, monster4))
-    {
-        ret->autorelease();
-        return ret;
-    }
-    else
-    {
-        CC_SAFE_DELETE(ret);
-        return nullptr;
-    }
+	{
+		ret->autorelease();
+		return ret;
+	}
+	else
+	{
+		CC_SAFE_DELETE(ret);
+		return nullptr;
+	}
 }
 
 bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster* player_monster3, Monster* player_monster4)
@@ -182,6 +192,31 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 	}
 	Director::getInstance()->getTextureCache()->removeUnusedTextures();
 
+	auto animation = Animation::create();
+	for (int i = 1; i<55; i++)
+	{
+		char szName[100] = { 0 };
+		sprintf(szName, "SceneGame/animation/walkin/animation_walk%d.png", i);
+		animation->addSpriteFrameWithFile(szName);
+	}
+
+	// should last 2.8 seconds. And there are 14 frames.
+	animation->setDelayPerUnit(2.5f / 54.0f);
+	animation->setRestoreOriginalFrame(true);
+
+	auto animation2 = Animation::create();
+	for (int i = 1; i<95; i++)
+	{
+		char szName[100] = { 0 };
+		sprintf(szName, "SceneGame/animation/boss/animation_boss%d.png", i);
+		animation2->addSpriteFrameWithFile(szName);
+	}
+
+	// should last 2.8 seconds. And there are 14 frames.
+	animation->setDelayPerUnit(4.0f / 94.0f);
+	animation->setRestoreOriginalFrame(true);
+
+
 	msg = AttackMessage::createMessage();
 
 	this->PlayerMonster1 = player_monster1;
@@ -189,19 +224,19 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 	this->PlayerMonster3 = player_monster3;
 	this->PlayerMonster4 = player_monster4;
 
-	this->monster1 = new SlimeFire(true,100);
-	this->monster2 = new SlimeWater(true,100);
-	this->monster3 = new BlackDragonBaby(true,100);
+	this->monster1 = new SlimeFire(true, 100);
+	this->monster2 = new SlimeWater(true, 100);
+	this->monster3 = new BlackDragonBaby(true, 100);
 	this->monster4 = new BlackDragonBaby(true, 100);;
-	this->monster5 = new LvBu(true,100);
+	this->monster5 = new LvBu(true, 100);
 
 	playerHP = PlayerMonster1->monster_get_hp_total() + PlayerMonster2->monster_get_hp_total() + PlayerMonster3->monster_get_hp_total() + PlayerMonster4->monster_get_hp_total();
 	player_hp_total = playerHP;
 
 	int numOfAttack = PlayerMonster1->monster_get_mosnter_type() + PlayerMonster2->monster_get_mosnter_type() + PlayerMonster3->monster_get_mosnter_type() + PlayerMonster4->monster_get_mosnter_type();
 
-	msg->setNumAttackMonster(8-numOfAttack);
-	msg->setNumAssistMonster(numOfAttack-4);
+	msg->setNumAttackMonster(8 - numOfAttack);
+	msg->setNumAssistMonster(numOfAttack - 4);
 
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = CC_CALLBACK_2(SceneGame::onTouchBegan, this);
@@ -221,21 +256,21 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 
 	auto label2 = LabelTTF::create("", "fonts/BankGothic Lt BT.ttf", 24);
 	label2->setColor(ccColor3B::GREEN);
-	label2->setPosition(Vec2(visibleSize.width * 7 / 8, visibleSize.height *3 / 5));
+	label2->setPosition(Vec2(visibleSize.width * 7 / 8, visibleSize.height * 3 / 5));
 	label2->setOpacity(0);
 	label2->setTag(scene_game_int_tag_number_label_instruction_player_turn);
 	addChild(label2, Level_3);
-	
+
 
 	auto sprite_animate_boss = Sprite::create("SceneGame/animation/boss/animation_holder.png");
 
 	sprite_animate_boss->setTag(scene_game_int_tag_number_sprite_animate_boss);
-	sprite_animate_boss->setPosition(Vec2(visibleSize.width/2,visibleSize.height/2));
+	sprite_animate_boss->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
 	sprite_animate_boss->setScaleX(visibleSize.width / sprite_animate_boss->getContentSize().width);
 	sprite_animate_boss->setScaleY(visibleSize.height / sprite_animate_boss->getContentSize().height);
 	sprite_animate_boss->setOpacity(0);
 
-	addChild(sprite_animate_boss,Level_5);
+	addChild(sprite_animate_boss, Level_5);
 
 	auto menu = Menu::create(closeItem, NULL);
 	menu->setPosition(Vec2::ONE);
@@ -254,7 +289,7 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 	sprite_monster_bg->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height * 5 / 6));
 	sprite_monster_bg->setTag(scene_game_int_tag_number_sprite_animate_walkin);
 	sprite_monster_bg->setScaleX(visibleSize.width / sprite_monster_bg->getContentSize().width);
-	sprite_monster_bg->setScaleY((visibleSize.height/3)/ sprite_monster_bg->getContentSize().height);
+	sprite_monster_bg->setScaleY((visibleSize.height / 3) / sprite_monster_bg->getContentSize().height);
 	this->addChild(sprite_monster_bg, Level_0);
 
 	scene_game_bool_player_turn = false;
@@ -269,20 +304,20 @@ void SceneGame::setEmitterPosition()
 	auto s = Director::getInstance()->getWinSize();
 	if (partical_system_zhuanpan_decorate != NULL)
 	{
-		partical_system_zhuanpan_decorate->setPosition(Vec2(s.width /3, s.height / 3));
+		partical_system_zhuanpan_decorate->setPosition(Vec2(s.width / 3, s.height / 3));
 	}
 }
 
 void SceneGame::update(float dt)
 {
-	if (scene_game_timer_scene != 0){	
+	if (scene_game_timer_scene != 0){
 		scene_game_timer_scene++;
 		if (scene_game_timer_scene > 60){
 			scene_game_timer_scene = 0;
 			//scene_game_timer_level_walk = 1;
-			scene_game_timer_level_walk=1;
+			scene_game_timer_level_walk = 1;
 			//scene_game_timer_boss_alert = 1;
-		
+
 		}
 	}
 	if (scene_game_bool_player_turn){
@@ -291,7 +326,7 @@ void SceneGame::update(float dt)
 		label->setString("Player");
 	}
 	else{
-   		auto label = (LabelTTF*)getChildByTag(scene_game_int_tag_number_label_instruction_player_turn);
+		auto label = (LabelTTF*)getChildByTag(scene_game_int_tag_number_label_instruction_player_turn);
 		label->setColor(Color3B::RED);
 		label->setString("Enemy");
 	}
@@ -322,7 +357,7 @@ void SceneGame::update(float dt)
 		}
 		if (scene_game_timer_attack_effect == 10){
 			player_attack_counter++;
-			zhuanpanActionFinished();		
+			zhuanpanActionFinished();
 		}
 		if (scene_game_timer_attack_effect == 20){
 			player_attack_counter++;
@@ -330,12 +365,12 @@ void SceneGame::update(float dt)
 		}
 		if (scene_game_timer_attack_effect == 30){
 			player_attack_counter++;
-			zhuanpanActionFinished();	
+			zhuanpanActionFinished();
 		}
 		if (scene_game_timer_attack_effect == 40){
 			player_attack_counter++;
 			zhuanpanActionFinished();
-				
+
 		}
 		if (scene_game_timer_attack_effect > 50){
 
@@ -391,10 +426,10 @@ void SceneGame::update(float dt)
 			if (level == 0 && monster1->monster_get_hp_now() <= 0 && monster2->monster_get_hp_now() <= 0){
 				scene_game_timer_level_walk = 1;
 			}
-		
+
 			if (level == 1 && monster3->monster_get_hp_now() <= 0 && monster4->monster_get_hp_now() <= 0){
 				scene_game_timer_level_walk = 1;
-				
+
 			}
 			if (level == 2 && monster5->monster_get_hp_now() <= 0){
 				scene_game_timer_level_walk = 1;
@@ -402,7 +437,7 @@ void SceneGame::update(float dt)
 
 		}
 	}
-	if (scene_game_timer_level_walk!=0){
+	if (scene_game_timer_level_walk != 0){
 		scene_game_timer_level_walk++;
 		if (scene_game_timer_level_walk == 2){
 			if (level == 2 && monster5->monster_get_hp_now() <= 0){
@@ -432,17 +467,16 @@ void SceneGame::update(float dt)
 			// should last 2.8 seconds. And there are 14 frames. 
 			animation->setDelayPerUnit(2.5f / 54.0f);
 			animation->setRestoreOriginalFrame(true);
-			auto action = Animate::create(animation);
 
 			getChildByTag(scene_game_int_tag_number_sprite_animate_walkin)->runAction(Animate::create(animation));
-		
+
 		}
-		
+
 		if (scene_game_timer_level_walk > 100){
 			scene_game_timer_level_walk = 0;
 			scene_game_bool_cannot_player_operate = false;
 
-			if(level==0&&monster1->monster_get_hp_now()>0){
+			if (level == 0 && monster1->monster_get_hp_now()>0){
 				getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(FadeIn::create(0.5));
 				getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(FadeIn::create(0.5));
 				show_monster1_hp(true);
@@ -474,8 +508,8 @@ void SceneGame::update(float dt)
 				removeChildByTag(scene_game_int_tag_number_sprite_monster1);
 				removeChildByTag(scene_game_int_tag_number_sprite_monster2);
 			}
-			
-			
+
+
 		}
 
 	}
@@ -485,7 +519,7 @@ void SceneGame::update(float dt)
 		if (scene_game_timer_boss_alert == 2){
 
 			scene_game_bool_cannot_player_operate = true;
-			SpriteFrameCache* pCache = SpriteFrameCache::getInstance();
+
 			auto animation = Animation::create();
 			for (int i = 1; i<95; i++)
 			{
@@ -497,7 +531,6 @@ void SceneGame::update(float dt)
 			// should last 2.8 seconds. And there are 14 frames. 
 			animation->setDelayPerUnit(4.0f / 94.0f);
 			animation->setRestoreOriginalFrame(true);
-			auto action = Animate::create(animation);
 
 			getChildByTag(scene_game_int_tag_number_sprite_animate_boss)->runAction(Animate::create(animation));
 			getChildByTag(scene_game_int_tag_number_sprite_animate_boss)->setOpacity(255);
@@ -516,11 +549,11 @@ void SceneGame::update(float dt)
 
 	if (scene_game_timer_enemy != 0){
 		scene_game_timer_enemy++;
-		
+
 		scene_game_bool_player_turn = false;
-		if (scene_game_timer_enemy==4)
+		if (scene_game_timer_enemy == 4)
 			AttackByEnemy();
-			
+
 		if (scene_game_timer_enemy == 10){
 			removeChildByTag(scene_game_int_tag_number_heal_effect);
 			removeChildByTag(scene_game_int_tag_number_enhance_effect);
@@ -531,12 +564,12 @@ void SceneGame::update(float dt)
 			scene_game_timer_enemy = 0;
 			scene_game_bool_player_turn = true;
 
-				removeChildByTag(scene_game_int_tag_number_label_monster1_attack_text);
-				removeChildByTag(scene_game_int_tag_number_label_monster2_attack_text);
-				removeChildByTag(scene_game_int_tag_number_label_monster3_attack_text);
-				removeChildByTag(scene_game_int_tag_number_label_monster4_attack_text);
-				removeChildByTag(scene_game_int_tag_number_label_monster5_attack_text);
-				removeChildByTag(scene_game_int_tag_number_label_hp_player_recover);
+			removeChildByTag(scene_game_int_tag_number_label_monster1_attack_text);
+			removeChildByTag(scene_game_int_tag_number_label_monster2_attack_text);
+			removeChildByTag(scene_game_int_tag_number_label_monster3_attack_text);
+			removeChildByTag(scene_game_int_tag_number_label_monster4_attack_text);
+			removeChildByTag(scene_game_int_tag_number_label_monster5_attack_text);
+			removeChildByTag(scene_game_int_tag_number_label_hp_player_recover);
 		}
 		if (playerHP <= 0){
 			auto spriteWin = Sprite::create("SceneGame/lose.png");
@@ -547,7 +580,7 @@ void SceneGame::update(float dt)
 	}
 	if (scene_game_timer_action_finished != 0){
 		scene_game_timer_action_finished++;
-		
+
 		if (scene_game_timer_action_finished > 11){
 			scene_game_timer_action_finished = 0;
 			scene_game_bool_player_turn = false;
@@ -555,7 +588,7 @@ void SceneGame::update(float dt)
 			removeChildByTag(scene_game_int_tag_number_label_player_be_attacked1_text);
 			removeChildByTag(scene_game_int_tag_number_label_player_be_attacked2_text);
 			if (spiral_light_num<8)
-			spiral_light_num++;
+				spiral_light_num++;
 			spiral_burst_light_turn_on(true);
 
 			if (level == 0){
@@ -592,7 +625,7 @@ void SceneGame::update(float dt)
 			if (level == 2 && monster5->monster_get_hp_now() <= 0){
 				scene_game_timer_level_walk = 1;
 			}
-		
+
 
 		}
 	}
@@ -607,7 +640,7 @@ bool SceneGame::onTouchBegan(Touch* touch, Event  *event)
 		return false;
 	if (scene_game_bool_touched)
 		return false;
-	
+
 	if (scene_game_bool_sprial_burst_menu_showed)
 		spiral_burst_pin_show();
 	return true;
@@ -615,11 +648,11 @@ bool SceneGame::onTouchBegan(Touch* touch, Event  *event)
 
 void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 {
-	if (monster5->monster_get_hp_now()>0&&playerHP>0) {
+	if (monster5->monster_get_hp_now()>0 && playerHP>0) {
 
 		getChildByTag(scene_game_int_tag_number_sprite_pins)->stopAllActions();
 
-		float at = rand()%360;
+		float at = rand() % 360;
 
 		accumulated_angle += at;
 
@@ -638,23 +671,20 @@ void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 		getChildByTag(scene_game_int_tag_number_sprite_pin4_energy1)->runAction(UtilFadeRotateRy::create(at, scene_game_zhuanpan_action_time));
 
 		scene_game_bool_touched = true;
-		
+
 	}
 	else{
 		menuCallback(NULL);
 	}
 
-	
-	
+
+
 }
 
 void SceneGame::menuCallback(cocos2d::Ref* pSender){
 	if (!scene_game_bool_player_turn)
 		return;
-	auto s = MainScene::createScene();
-	
-	Director::sharedDirector()->replaceScene(TransitionFade::create(1, s));
-	
+
 }
 
 void SceneGame::monster1_energy_accumulate(){
@@ -680,7 +710,7 @@ void SceneGame::monster2_energy_accumulate(){
 	if (Player_monster2_energy == PlayerMonster2->monster_getEnergyLimit())
 		getChildByTag(scene_game_int_tag_number_sprite_pin2_energy1)->runAction(RepeatForever::create(Sequence::createWithTwoActions(FadeOut::create(0.5f), FadeIn::create(0.5f))));
 
-	
+
 }
 
 void SceneGame::monster3_energy_accumulate(){
@@ -719,7 +749,7 @@ void SceneGame::monster1_pin_Callback(cocos2d::Ref* pSender){
 			spiral_light_num -= PlayerMonster1->monster_getSpiralBurstLimit();
 			spiral_burst_light_turn_on(false);
 			msg->setType(5);
-			specialAttack(PlayerMonster1->monster_AttackOthers(msg),PlayerMonster1);
+			specialAttack(PlayerMonster1->monster_AttackOthers(msg), PlayerMonster1);
 		}
 	}
 	else if (Player_monster1_energy == PlayerMonster1->monster_getEnergyLimit()){
@@ -751,9 +781,9 @@ void SceneGame::monster2_pin_Callback(cocos2d::Ref* pSender){
 		getChildByTag(scene_game_int_tag_number_sprite_pin2_energy1)->setOpacity(0);
 		Player_monster2_energy = 0;
 		msg->setType(4);
-		specialAttack(PlayerMonster2->monster_AttackOthers(msg),  PlayerMonster2);
+		specialAttack(PlayerMonster2->monster_AttackOthers(msg), PlayerMonster2);
 	}
-	
+
 }
 
 void SceneGame::monster3_pin_Callback(cocos2d::Ref* pSender){
@@ -769,15 +799,16 @@ void SceneGame::monster3_pin_Callback(cocos2d::Ref* pSender){
 			msg->setType(5);
 			specialAttack(PlayerMonster3->monster_AttackOthers(msg), PlayerMonster3);
 		}
-	} else
+	}
+	else
 		if (Player_monster3_energy == PlayerMonster3->monster_getEnergyLimit()){
 		getChildByTag(scene_game_int_tag_number_sprite_pin3_energy1)->stopAllActions();
 		getChildByTag(scene_game_int_tag_number_sprite_pin3_energy1)->setOpacity(0);
 		Player_monster3_energy = 0;
 		msg->setType(4);
 		specialAttack(PlayerMonster3->monster_AttackOthers(msg), PlayerMonster3);
-	}
-	
+		}
+
 }
 
 void SceneGame::monster4_pin_Callback(cocos2d::Ref* pSender){
@@ -789,18 +820,19 @@ void SceneGame::monster4_pin_Callback(cocos2d::Ref* pSender){
 		spiral_burst_pin_show();
 		if (PlayerMonster4->monster_getSpiralBurstLimit() <= spiral_light_num){
 			spiral_light_num -= PlayerMonster4->monster_getSpiralBurstLimit();
-		spiral_burst_light_turn_on(false);
-		msg->setType(5);
-		specialAttack(PlayerMonster4->monster_AttackOthers(msg), PlayerMonster4);
+			spiral_burst_light_turn_on(false);
+			msg->setType(5);
+			specialAttack(PlayerMonster4->monster_AttackOthers(msg), PlayerMonster4);
 		}
-	} else
+	}
+	else
 		if (Player_monster4_energy == PlayerMonster4->monster_getEnergyLimit()){
 		getChildByTag(scene_game_int_tag_number_sprite_pin4_energy1)->stopAllActions();
 		getChildByTag(scene_game_int_tag_number_sprite_pin4_energy1)->setOpacity(0);
 		Player_monster4_energy = 0;
 		msg->setType(4);
-		specialAttack(PlayerMonster4->monster_AttackOthers(msg),  PlayerMonster4);
-	}
+		specialAttack(PlayerMonster4->monster_AttackOthers(msg), PlayerMonster4);
+		}
 
 }
 
@@ -873,25 +905,25 @@ void SceneGame::spiral_burst_light_turn_on(bool turn_on){
 	}
 	else{
 
-		switch (8-spiral_light_num){
+		switch (8 - spiral_light_num){
 		case 8:
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox1_nolight)->runAction(FadeIn::create(0.1f));
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox1_light)->setOpacity(0);
 		case 7:
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox2_nolight)->runAction(FadeIn::create(0.1f));
-			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox2_light)->setOpacity(0); 
+			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox2_light)->setOpacity(0);
 		case 6:
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox3_nolight)->runAction(FadeIn::create(0.1f));
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox3_light)->setOpacity(0);
 		case 5:
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox4_nolight)->runAction(FadeIn::create(0.1f));
-			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox4_light)->setOpacity(0); 
+			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox4_light)->setOpacity(0);
 		case 4:
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox5_nolight)->runAction(FadeIn::create(0.1f));
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox5_light)->setOpacity(0);
 		case 3:
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox6_nolight)->runAction(FadeIn::create(0.1f));
-			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox6_light)->setOpacity(0); 
+			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox6_light)->setOpacity(0);
 		case 2:
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox7_nolight)->runAction(FadeIn::create(0.1f));
 			getChildByTag(scene_game_int_tag_number_sprite_zhuanpan_skillbox7_light)->setOpacity(0);
@@ -948,7 +980,7 @@ void SceneGame::initPlayerHP(){
 	auto label = LabelTTF::create(s + "/" + s, "fonts/BankGothic Lt BT.ttf", 15);
 	label->setTag(scene_game_int_tag_number_label_hp_player_text);
 	// position the label on the center of the screen
-	label->setPosition(Vec2(visibleSize.width*2 / 3, visibleSize.height * 13 / 20));
+	label->setPosition(Vec2(visibleSize.width * 2 / 3, visibleSize.height * 13 / 20));
 	this->addChild(label, Level_3);
 
 	this->addChild(sprite_player_hp_body, Level_2);
@@ -966,7 +998,7 @@ void SceneGame::initZhuanpan(std::string scene_game_monster_pin1, std::string sc
 	sprite_zhuanpanOutSide->setTag(scene_game_int_tag_number_sprite_pin_bg);
 	auto zhuanpan_center = Vec2(visibleSize.width / 2, visibleSize.height / 3);
 	scene_game_position[0] = visibleSize.width / 2 + origin.x;
-	scene_game_position[1] = 5*visibleSize.height / 6 + origin.y;
+	scene_game_position[1] = 5 * visibleSize.height / 6 + origin.y;
 	sprite_zhuanpanOutSide->setPosition(zhuanpan_center);
 	float  scal_ZhuanPan = 0.6*visibleSize.height / sprite_zhuanpanOutSide->getContentSize().height;
 	float radius = 0.69 *  visibleSize.height / 3;
@@ -1294,7 +1326,7 @@ void SceneGame::initMonsters(){
 	sprite_monster4->setTag(scene_game_int_tag_number_sprite_monster4);
 	sprite_monster5->setTag(scene_game_int_tag_number_sprite_monster5);
 
-	float  scal = (visibleSize.height / 4) / sprite_monster5->getContentSize().height;
+	float  scal = (visibleSize.height / 5) / sprite_monster5->getContentSize().height;
 	sprite_monster1->setScale(scal);
 	sprite_monster2->setScale(scal);
 	sprite_monster3->setScale(scal);
@@ -1307,24 +1339,24 @@ void SceneGame::initMonsters(){
 	sprite_monster4->setOpacity(0);
 	scene_game_scalNow = scal;
 
-	sprite_monster1->setPosition(Vec2(visibleSize.width / 3 + origin.x, visibleSize.height * 7/9));
-	sprite_monster2->setPosition(Vec2(visibleSize.width * 2 / 3 + origin.x, visibleSize.height * 7/9));
-	sprite_monster3->setPosition(Vec2(visibleSize.width / 5 + origin.x, visibleSize.height * 7/9));
-	sprite_monster4->setPosition(Vec2(visibleSize.width * 2 / 3 + origin.x, visibleSize.height * 7/9));
-	sprite_monster5->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height * 7/9));
+	sprite_monster1->setPosition(Vec2(visibleSize.width *scene_game_position_monster1[0] + origin.x, visibleSize.height *scene_game_position_monster1[1]));
+	sprite_monster2->setPosition(Vec2(visibleSize.width *scene_game_position_monster2[0] + origin.x, visibleSize.height *scene_game_position_monster2[1]));
+	sprite_monster3->setPosition(Vec2(visibleSize.width *scene_game_position_monster3[0] + origin.x, visibleSize.height *scene_game_position_monster3[1]));
+	sprite_monster4->setPosition(Vec2(visibleSize.width *scene_game_position_monster4[0] + origin.x, visibleSize.height *scene_game_position_monster4[1]));
+	sprite_monster5->setPosition(Vec2(visibleSize.width *scene_game_position_monster5[0] + origin.x, visibleSize.height *scene_game_position_monster5[1]));
 
 	sprite_monster1->setAnchorPoint(Vec2(0.5, 0.5));
 	sprite_monster2->setAnchorPoint(Vec2(0.5, 0.5));
 	sprite_monster3->setAnchorPoint(Vec2(0.5, 0.5));
 	sprite_monster4->setAnchorPoint(Vec2(0.5, 0.5));
-	sprite_monster5->setAnchorPoint(Vec2(0.5, 0.50));
+	sprite_monster5->setAnchorPoint(Vec2(0.5, 0.5));
 
 	this->addChild(sprite_monster1, Level_1);
 	this->addChild(sprite_monster2, Level_1);
 	this->addChild(sprite_monster3, Level_1);
 	this->addChild(sprite_monster4, Level_1);
 	this->addChild(sprite_monster5, Level_1);
-	
+
 
 	/*Boss 血条..*>.<*/
 	auto sprite_monster5_hp_bg = Sprite::create("SceneGame/HP/boss/bg_body.png");
@@ -1334,9 +1366,9 @@ void SceneGame::initMonsters(){
 
 	float left_head = sprite_monster5_hp_bg_left->getContentSize().width / 2;
 	float right_head = sprite_monster5_hp_bg_right->getContentSize().width / 2;
-	float monster_hp_height = visibleSize.height * 7/9 - sprite_monster5->getContentSize().height * scal / 2;
-	float monster_hp_left = visibleSize.width / 2 - sprite_monster5_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster5_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 4;
-	float mosnter_hp_right = visibleSize.width / 2 + sprite_monster5_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster5_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 4;
+	float monster_hp_height = visibleSize.height * scene_game_position_monster5_hp[1] - sprite_monster5->getContentSize().height * scal / 2;
+	float monster_hp_left = visibleSize.width *scene_game_position_monster5_hp[0] - sprite_monster5_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster5_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 4;
+	float mosnter_hp_right = visibleSize.width * scene_game_position_monster5_hp[0] + sprite_monster5_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster5_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 4;
 	scene_game_scale_monster5_hp = ((sprite_monster5_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster5_hp_body->getContentSize().width));
 
 	sprite_monster5_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1345,7 +1377,7 @@ void SceneGame::initMonsters(){
 	sprite_monster5_hp_body->setScaleX(scene_game_scale_monster5_hp);
 	sprite_monster5_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster5_hp_bg->setPosition(Vec2(visibleSize.width / 2 + origin.x, monster_hp_height));
+	sprite_monster5_hp_bg->setPosition(Vec2(visibleSize.width *scene_game_position_monster5_hp[0] + origin.x, monster_hp_height));
 	sprite_monster5_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster5_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster5_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan, monster_hp_height));
@@ -1377,9 +1409,9 @@ void SceneGame::initMonsters(){
 
 	left_head = sprite_monster1_hp_bg_left->getContentSize().width / 2;
 	right_head = sprite_monster1_hp_bg_right->getContentSize().width / 2;
-	monster_hp_height = visibleSize.height * 7/9 - sprite_monster1->getContentSize().height *  scal / 2;
-	monster_hp_left = visibleSize.width / 3 - sprite_monster1_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster1_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
-	mosnter_hp_right = visibleSize.width / 3 + sprite_monster1_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster1_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
+	monster_hp_height = visibleSize.height * scene_game_position_monster1_hp[1] - sprite_monster1->getContentSize().height *  scal / 2;
+	monster_hp_left = visibleSize.width * scene_game_position_monster1_hp[0] - sprite_monster1_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster1_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
+	mosnter_hp_right = visibleSize.width  * scene_game_position_monster1_hp[0] + sprite_monster1_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster1_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
 	scene_game_scale_monster1_hp = ((sprite_monster1_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster1_hp_body->getContentSize().width));
 
 	sprite_monster1_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1388,7 +1420,7 @@ void SceneGame::initMonsters(){
 	sprite_monster1_hp_body->setScaleX(scene_game_scale_monster1_hp);
 	sprite_monster1_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster1_hp_bg->setPosition(Vec2(visibleSize.width / 3 + origin.x, monster_hp_height));
+	sprite_monster1_hp_bg->setPosition(Vec2(visibleSize.width * scene_game_position_monster1_hp[0] + origin.x, monster_hp_height));
 	sprite_monster1_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster1_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster1_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan / 2, monster_hp_height));
@@ -1417,9 +1449,9 @@ void SceneGame::initMonsters(){
 
 	left_head = sprite_monster2_hp_bg_left->getContentSize().width / 2;
 	right_head = sprite_monster2_hp_bg_right->getContentSize().width / 2;
-	monster_hp_height = visibleSize.height * 7/9 - sprite_monster2->getContentSize().height *  scal / 2;
-	monster_hp_left = visibleSize.width * 2 / 3 - sprite_monster2_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster2_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
-	mosnter_hp_right = visibleSize.width * 2 / 3 + sprite_monster2_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster2_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
+	monster_hp_height = visibleSize.height * scene_game_position_monster2_hp[1] - sprite_monster2->getContentSize().height *  scal / 2;
+	monster_hp_left = visibleSize.width * scene_game_position_monster2_hp[0] - sprite_monster2_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster2_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
+	mosnter_hp_right = visibleSize.width * scene_game_position_monster2_hp[0] + sprite_monster2_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster2_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
 	scene_game_scale_monster2_hp = ((sprite_monster2_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster2_hp_body->getContentSize().width));
 
 	sprite_monster2_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1428,7 +1460,7 @@ void SceneGame::initMonsters(){
 	sprite_monster2_hp_body->setScaleX(scene_game_scale_monster2_hp);
 	sprite_monster2_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster2_hp_bg->setPosition(Vec2(visibleSize.width * 2 / 3 + origin.x, monster_hp_height));
+	sprite_monster2_hp_bg->setPosition(Vec2(visibleSize.width *scene_game_position_monster2_hp[0] + origin.x, monster_hp_height));
 	sprite_monster2_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster2_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster2_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan / 2, monster_hp_height));
@@ -1458,9 +1490,9 @@ void SceneGame::initMonsters(){
 
 	left_head = sprite_monster3_hp_bg_left->getContentSize().width / 2;
 	right_head = sprite_monster3_hp_bg_right->getContentSize().width / 2;
-	monster_hp_height = visibleSize.height * 7/9 - sprite_monster3->getContentSize().height *  scal / 2;
-	monster_hp_left = visibleSize.width / 3 - sprite_monster3_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster3_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
-	mosnter_hp_right = visibleSize.width / 3 + sprite_monster3_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster3_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
+	monster_hp_height = visibleSize.height * scene_game_position_monster3_hp[1] - sprite_monster3->getContentSize().height *  scal / 2;
+	monster_hp_left = visibleSize.width * scene_game_position_monster3_hp[0] - sprite_monster3_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster3_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
+	mosnter_hp_right = visibleSize.width * scene_game_position_monster3_hp[0] + sprite_monster3_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster3_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
 	scene_game_scale_monster3_hp = ((sprite_monster3_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster3_hp_body->getContentSize().width));
 
 	sprite_monster3_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1469,7 +1501,7 @@ void SceneGame::initMonsters(){
 	sprite_monster3_hp_body->setScaleX(scene_game_scale_monster3_hp);
 	sprite_monster3_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster3_hp_bg->setPosition(Vec2(visibleSize.width / 3 + origin.x, monster_hp_height));
+	sprite_monster3_hp_bg->setPosition(Vec2(visibleSize.width * scene_game_position_monster3_hp[0] + origin.x, monster_hp_height));
 	sprite_monster3_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster3_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster3_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan / 2, monster_hp_height));
@@ -1498,9 +1530,9 @@ void SceneGame::initMonsters(){
 
 	left_head = sprite_monster4_hp_bg_left->getContentSize().width / 2;
 	right_head = sprite_monster4_hp_bg_right->getContentSize().width / 2;
-	monster_hp_height = visibleSize.height * 7/9 - sprite_monster4->getContentSize().height *  scal / 2;
-	monster_hp_left = visibleSize.width * 2 / 3 - sprite_monster4_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster4_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
-	mosnter_hp_right = visibleSize.width * 2 / 3 + sprite_monster4_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster4_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
+	monster_hp_height = visibleSize.height * scene_game_position_monster4_hp[1] - sprite_monster4->getContentSize().height *  scal / 2;
+	monster_hp_left = visibleSize.width * scene_game_position_monster4_hp[0] - sprite_monster4_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 + sprite_monster4_hp_bg_left->getContentSize().width*scene_game_scalZhuanPan / 6;
+	mosnter_hp_right = visibleSize.width * scene_game_position_monster4_hp[0] + sprite_monster4_hp_bg->getContentSize().width*scene_game_scalZhuanPan / 2 - sprite_monster4_hp_bg_right->getContentSize().width*scene_game_scalZhuanPan / 6;
 	scene_game_scale_monster4_hp = ((sprite_monster4_hp_bg->getContentSize().width - left_head - right_head)*scene_game_scalZhuanPan / (sprite_monster4_hp_body->getContentSize().width));
 
 	sprite_monster4_hp_bg->setScale(scene_game_scalZhuanPan);
@@ -1509,7 +1541,7 @@ void SceneGame::initMonsters(){
 	sprite_monster4_hp_body->setScaleX(scene_game_scale_monster4_hp);
 	sprite_monster4_hp_body->setScaleY(scene_game_scalZhuanPan);
 
-	sprite_monster4_hp_bg->setPosition(Vec2(visibleSize.width * 2 / 3 + origin.x, monster_hp_height));
+	sprite_monster4_hp_bg->setPosition(Vec2(visibleSize.width *  scene_game_position_monster4_hp[0] + origin.x, monster_hp_height));
 	sprite_monster4_hp_bg_left->setPosition(Vec2(monster_hp_left + origin.x, monster_hp_height));
 	sprite_monster4_hp_bg_right->setPosition(Vec2(mosnter_hp_right + origin.x, monster_hp_height));
 	sprite_monster4_hp_body->setPosition(Vec2(monster_hp_left + left_head*scene_game_scalZhuanPan / 2, monster_hp_height));
@@ -1583,7 +1615,7 @@ void SceneGame::show_monster4_hp(bool show){
 		getChildByTag(scene_game_int_tag_number_sprite_hp_monster4_bg)->runAction(FadeIn::create(0.2f));
 		getChildByTag(scene_game_int_tag_number_sprite_hp_monster4_left)->runAction(FadeIn::create(0.2f));
 		getChildByTag(scene_game_int_tag_number_sprite_hp_monster4_right)->runAction(FadeIn::create(0.2f));
-getChildByTag(scene_game_int_tag_number_sprite_hp_monster4)->runAction(FadeIn::create(0.2f));
+		getChildByTag(scene_game_int_tag_number_sprite_hp_monster4)->runAction(FadeIn::create(0.2f));
 	}
 	else{
 		getChildByTag(scene_game_int_tag_number_sprite_hp_monster4_bg)->runAction(FadeOut::create(0.2f));
@@ -1615,7 +1647,7 @@ void SceneGame::zhuanpanActionFinished(){
 	int index_of_skill_box_monster3 = ((accumulated_angle + 180) / 45) % 8;
 	int index_of_skill_box_monster4 = ((accumulated_angle + 270) / 45) % 8;
 	switch (player_attack_counter){
-	case 1:	
+	case 1:
 		if (skillbox_type[index_of_skill_box_monster1] != 4){
 			msg->setType(skillbox_type[index_of_skill_box_monster1]);
 			nomralZhuanPanSkillAction(PlayerMonster1->monster_AttackOthers(msg));
@@ -1663,12 +1695,12 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 	std::stringstream str_stream_temp;
 	std::string str_temp;
 	int temp = rand() % 100;
-	float a = visibleSize.height*2/3 + temp;
-	float b = visibleSize.width/2;
+	float a = visibleSize.height * 2 / 3 + temp;
+	float b = visibleSize.width / 2;
 	this->addChild(splade1, Level_2);
 	splade1->setPosition(Vec2(b, visibleSize.height - temp));
 	splade1->setTag(scene_game_int_tag_number_attack_effect1);
-	
+
 	switch (this->level){
 	case 0:{
 		//0:nothing, 1：攻击 2:恢复 3: 减少伤害 4: 增加power 5: 按百分比攻击 6： 按百分比回复
@@ -1676,7 +1708,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 		case 0: break;
 		case 1:
 			if (monster1->isAlive()){
-				if(monster1->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+				if (monster1->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, 0, a));
@@ -1695,7 +1727,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			}
 			else
 				if (monster2->isAlive()){
-				if(monster2->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+				if (monster2->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, b * 2, a));
@@ -1751,10 +1783,10 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			}
 			effect_Enhance(visibleSize);
 			break;
-			
+
 		case 5:
 			if (monster1->isAlive()){
-				if(monster1->monster_beAttackedBy(received_msg->getEffect()*monster1->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+				if (monster1->monster_beAttackedBy(received_msg->getEffect()*monster1->monster_get_hp_total(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, 0, a));
@@ -1773,22 +1805,22 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			}
 			else
 				if (monster2->isAlive()){
-					if(monster2->monster_beAttackedBy(received_msg->getEffect()*monster2->monster_get_hp_total(), received_msg->getSkillProperty(), false))
-						received_msg->setEffect(received_msg->getEffect() * 2);;
-					getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
-					splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, b * 2, a));
-					
+				if (monster2->monster_beAttackedBy(received_msg->getEffect()*monster2->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+					received_msg->setEffect(received_msg->getEffect() * 2);;
+				getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
+				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, b * 2, a));
 
-					str_stream_temp << "-" << received_msg->getEffect()*monster2->monster_get_hp_total();
-					str_temp = str_stream_temp.str();
 
-					auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
-					label2->setColor(ccColor3B::RED);
-					label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
-					label2->setOpacity(0);
-					label2->setTag(scene_game_int_tag_number_label_monster2_attack_text);
-					addChild(label2, Level_3);
-					label2->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
+				str_stream_temp << "-" << received_msg->getEffect()*monster2->monster_get_hp_total();
+				str_temp = str_stream_temp.str();
+
+				auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
+				label2->setColor(ccColor3B::RED);
+				label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
+				label2->setOpacity(0);
+				label2->setTag(scene_game_int_tag_number_label_monster2_attack_text);
+				addChild(label2, Level_3);
+				label2->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
 				}
 			break;
 		case 6:
@@ -1818,7 +1850,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 		case 1:
 			if (monster3->isAlive()){
 				if (monster3->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
-					received_msg->setEffect(received_msg->getEffect()*2);
+					received_msg->setEffect(received_msg->getEffect() * 2);
 				getChildByTag(scene_game_int_tag_number_sprite_monster3)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, 0, a));
 
@@ -1835,7 +1867,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			}
 			else
 				if (monster4->isAlive()){
-				if(monster4->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+				if (monster4->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster4)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, b * 2, a));
@@ -1894,7 +1926,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 
 		case 5:
 			if (monster3->isAlive()){
-				if(monster3->monster_beAttackedBy(received_msg->getEffect()*monster3->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+				if (monster3->monster_beAttackedBy(received_msg->getEffect()*monster3->monster_get_hp_total(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster3)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, 0, a));
@@ -1912,18 +1944,18 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			}
 			else
 				if (monster4->isAlive()){
-				if(monster4->monster_beAttackedBy(received_msg->getEffect()*monster4->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+				if (monster4->monster_beAttackedBy(received_msg->getEffect()*monster4->monster_get_hp_total(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 
 				getChildByTag(scene_game_int_tag_number_sprite_monster4)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, b * 2, a));
-				
+
 				str_stream_temp << "-" << received_msg->getEffect()*monster4->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
 				auto label4 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 				label4->setColor(ccColor3B::RED);
-				label4->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height *7 / 8));
+				label4->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
 				label4->setOpacity(0);
 				label4->setTag(scene_game_int_tag_number_label_monster4_attack_text);
 				addChild(label4, Level_3);
@@ -1954,7 +1986,7 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 		case 0: break;
 		case 1:
 			if (monster5->isAlive()){
-				if(monster5->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+				if (monster5->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);
 				getChildByTag(scene_game_int_tag_number_sprite_monster5)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, 0, visibleSize.height - temp, b * 2, a));
@@ -2012,11 +2044,11 @@ void SceneGame::nomralZhuanPanSkillAction(AttackMessage* received_msg){
 			break;
 		case 5:
 			if (monster5->isAlive()){
-				if(monster5->monster_beAttackedBy(received_msg->getEffect()*monster5->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+				if (monster5->monster_beAttackedBy(received_msg->getEffect()*monster5->monster_get_hp_total(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);
 				getChildByTag(scene_game_int_tag_number_sprite_monster5)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 				splade1->runAction(UtilAttackMove::create(0.5f, b, visibleSize.height - temp, 0, a));
-				
+
 				str_stream_temp << "-" << received_msg->getEffect()*monster5->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
@@ -2059,7 +2091,7 @@ void SceneGame::AttackByEnemy(){
 	std::stringstream str_stream_temp2;
 	std::string str_temp;
 	Size visibleSize = Director::getInstance()->getVisibleSize();
-	std::string attackEffect1="enemy_attack_effect", attackEffect2="enemy_attack_effect";
+	std::string attackEffect1 = "enemy_attack_effect", attackEffect2 = "enemy_attack_effect";
 	if (level == 0){
 		attackEffect1 = monster1->getAttackPng();
 		attackEffect2 = monster2->getAttackPng();
@@ -2075,11 +2107,11 @@ void SceneGame::AttackByEnemy(){
 
 	auto splade2 = MotionStreak::create(1.0f, 4.0f, 25.0f, Color3B(255, 255, 255), "SceneGame/attack/" + attackEffect1 + ".png");
 	auto splade3 = MotionStreak::create(1.0f, 4.0f, 25.0f, Color3B(255, 255, 255), "SceneGame/attack/" + attackEffect2 + ".png");
-	
+
 	this->addChild(splade2, Level_2);
 	this->addChild(splade3, Level_2);
-	splade2->setPosition(Vec2(visibleSize.width/5, visibleSize.height*5/6));
-	splade3->setPosition(Vec2(visibleSize.width*4/5, visibleSize.height*5/6));
+	splade2->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 5 / 6));
+	splade3->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 5 / 6));
 	splade2->setTag(scene_game_int_tag_number_attack_effect2);
 	splade3->setTag(scene_game_int_tag_number_attack_effect3);
 
@@ -2094,19 +2126,19 @@ void SceneGame::AttackByEnemy(){
 				if (scene_game_damage_counter <= 0){
 					scene_game_demage_fiex = 1;
 				}
-			
+
 			}
 			str_stream_temp << "-" << msg->getEffect()*scene_game_demage_fiex;
 			str_temp = str_stream_temp.str();
 
 			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label1->setColor(ccColor3B::RED);
-			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height *  3 / 4));
+			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 3 / 4));
 			label1->setOpacity(0);
 			label1->setTag(scene_game_int_tag_number_label_player_be_attacked1_text);
 			addChild(label1, Level_3);
 			label1->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
-			splade2->runAction(UtilAttackMove::create(0.5f, 0, visibleSize.height, visibleSize.width/2, visibleSize.height / 3));
+			splade2->runAction(UtilAttackMove::create(0.5f, 0, visibleSize.height, visibleSize.width / 2, visibleSize.height / 3));
 		}
 		if (monster2->isAlive()){
 			msg = monster2->monster_AttackOthers();
@@ -2117,7 +2149,7 @@ void SceneGame::AttackByEnemy(){
 					scene_game_demage_fiex = 1;
 				}
 			}
-			
+
 			str_stream_temp2 << "-" << msg->getEffect()*scene_game_demage_fiex;
 			str_temp = str_stream_temp2.str();
 			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
@@ -2138,7 +2170,7 @@ void SceneGame::AttackByEnemy(){
 				scene_game_damage_counter--;
 				if (scene_game_damage_counter < 0){
 					scene_game_demage_fiex = 1;
-					
+
 				}
 
 			}
@@ -2147,7 +2179,7 @@ void SceneGame::AttackByEnemy(){
 
 			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label1->setColor(ccColor3B::RED);
-			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height *  3 / 4));
+			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 3 / 4));
 			label1->setOpacity(0);
 			label1->setTag(scene_game_int_tag_number_label_player_be_attacked1_text);
 			addChild(label1, Level_3);
@@ -2157,7 +2189,7 @@ void SceneGame::AttackByEnemy(){
 		if (monster4->isAlive()){
 			msg = monster4->monster_AttackOthers();
 			playerHP -= msg->getEffect()*scene_game_demage_fiex;
-		
+
 			if (scene_game_demage_fiex != 1){
 				scene_game_damage_counter--;
 				if (scene_game_damage_counter < 0){
@@ -2191,7 +2223,7 @@ void SceneGame::AttackByEnemy(){
 			str_temp = str_stream_temp.str();
 			auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
 			label1->setColor(ccColor3B::RED);
-			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height *  3 / 4));
+			label1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 3 / 4));
 			label1->setOpacity(0);
 			label1->setTag(scene_game_int_tag_number_label_player_be_attacked2_text);
 			addChild(label1, Level_3);
@@ -2223,136 +2255,136 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 
 	switch (this->level){
 	case 0:{
-			switch (received_msg->getSkillEffectNo()){
-			case 0: break;
-			case 1:
-				if (monster1->isAlive()){
-					if(monster1->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
-						received_msg->setEffect(received_msg->getEffect() * 2);;
-					getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
+		switch (received_msg->getSkillEffectNo()){
+		case 0: break;
+		case 1:
+			if (monster1->isAlive()){
+				if (monster1->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+					received_msg->setEffect(received_msg->getEffect() * 2);;
+				getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 
-					str_stream_temp << "-" << received_msg->getEffect();
-					str_temp = str_stream_temp.str();
-
-					auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
-					label1->setColor(ccColor3B::RED);
-					label1->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
-					label1->setOpacity(0);
-					label1->setTag(scene_game_int_tag_number_label_monster1_attack_text);
-					addChild(label1, Level_3);
-					label1->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
-				}
-				else
-					if (monster2->isAlive()){
-					if(monster2->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
-						received_msg->setEffect(received_msg->getEffect() * 2);;
-					getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
-
-					str_stream_temp << "-" << received_msg->getEffect();
-					str_temp = str_stream_temp.str();
-
-					auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
-					label2->setColor(ccColor3B::RED);
-					label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
-					label2->setOpacity(0);
-					label2->setTag(scene_game_int_tag_number_label_monster2_attack_text);
-					addChild(label2, Level_3);
-					label2->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
-					}
-				break;
-			case 2:
-				playerHP += received_msg->getEffect();
-				effect_Heal(visibleSize);
-				str_stream_temp << "+" << received_msg->getEffect()*player_hp_total;
-
-				str_temp = str_stream_temp.str();
-				if (true){
-					auto label_recover1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
-					label_recover1->setColor(ccColor3B::GREEN);
-					label_recover1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
-					label_recover1->setOpacity(0);
-					label_recover1->setTag(scene_game_int_tag_number_label_hp_player_recover);
-					addChild(label_recover1, Level_3);
-					label_recover1->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
-				}
-				if (playerHP > player_hp_total)
-					playerHP = player_hp_total;
-				break;
-			case 3:
-				scene_game_demage_fiex = received_msg->getEffect();
-				scene_game_damage_counter = received_msg->getEffectiveTime();
-				effect_Debuff(visibleSize);
-				break;
-			case 4:
-				if (PlayerMonster1->monster_getRacePerporty() == received_msg->getSkillProperty()){
-					PlayerMonster1->monster_setPower(received_msg->getEffect(), received_msg->getEffectiveTime());
-				}
-				if (PlayerMonster2->monster_getRacePerporty() == received_msg->getSkillProperty()){
-					PlayerMonster2->monster_setPower(received_msg->getEffect(), received_msg->getEffectiveTime());
-				}
-				if (PlayerMonster3->monster_getRacePerporty() == received_msg->getSkillProperty()){
-					PlayerMonster3->monster_setPower(received_msg->getEffect(), received_msg->getEffectiveTime());
-				}
-				if (PlayerMonster4->monster_getRacePerporty() == received_msg->getSkillProperty()){
-					PlayerMonster4->monster_setPower(received_msg->getEffect(), received_msg->getEffectiveTime());
-				}
-				effect_Enhance(visibleSize);
-				break;
-			case 5:
-				if (monster1->isAlive()){
-					if(monster1->monster_beAttackedBy(received_msg->getEffect()*monster1->monster_get_hp_total(), received_msg->getSkillProperty(), false))
-						received_msg->setEffect(received_msg->getEffect() * 2);;
-					getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
-
-					str_stream_temp << "-" << received_msg->getEffect()*monster1->monster_get_hp_total();
-					str_temp = str_stream_temp.str();
-
-					auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
-					label1->setColor(ccColor3B::RED);
-					label1->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
-					label1->setOpacity(0);
-					label1->setTag(scene_game_int_tag_number_label_monster1_attack_text);
-					addChild(label1, Level_3);
-					label1->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
-
-				}
-				else
-					if (monster2->isAlive()){
-					if(monster2->monster_beAttackedBy(received_msg->getEffect()*monster2->monster_get_hp_total(), received_msg->getSkillProperty(), false))
-						received_msg->setEffect(received_msg->getEffect() * 2);;
-					getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
-				
-					str_stream_temp << "-" << received_msg->getEffect()*monster2->monster_get_hp_total();
-					str_temp = str_stream_temp.str();
-
-					auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
-					label2->setColor(ccColor3B::RED);
-					label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
-					label2->setOpacity(0);
-					label2->setTag(scene_game_int_tag_number_label_monster2_attack_text);
-					addChild(label2, Level_3);
-					label2->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
-					}
-				break;
-			case 6:
-				playerHP += received_msg->getEffect()*player_hp_total;
-
-				str_stream_temp << "+" << received_msg->getEffect()*player_hp_total;
-				effect_Heal(visibleSize);
+				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
-				auto label_recover2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
-				label_recover2->setColor(ccColor3B::GREEN);
-				label_recover2->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
-				label_recover2->setOpacity(0);
-				label_recover2->setTag(scene_game_int_tag_number_label_hp_player_recover);
-				addChild(label_recover2, Level_3);
-				label_recover2->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
-
-				if (playerHP > player_hp_total)
-					playerHP = player_hp_total;
-				break;
+				auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
+				label1->setColor(ccColor3B::RED);
+				label1->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
+				label1->setOpacity(0);
+				label1->setTag(scene_game_int_tag_number_label_monster1_attack_text);
+				addChild(label1, Level_3);
+				label1->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
 			}
+			else
+				if (monster2->isAlive()){
+				if (monster2->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+					received_msg->setEffect(received_msg->getEffect() * 2);;
+				getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
+
+				str_stream_temp << "-" << received_msg->getEffect();
+				str_temp = str_stream_temp.str();
+
+				auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
+				label2->setColor(ccColor3B::RED);
+				label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
+				label2->setOpacity(0);
+				label2->setTag(scene_game_int_tag_number_label_monster2_attack_text);
+				addChild(label2, Level_3);
+				label2->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
+				}
+			break;
+		case 2:
+			playerHP += received_msg->getEffect();
+			effect_Heal(visibleSize);
+			str_stream_temp << "+" << received_msg->getEffect()*player_hp_total;
+
+			str_temp = str_stream_temp.str();
+			if (true){
+				auto label_recover1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
+				label_recover1->setColor(ccColor3B::GREEN);
+				label_recover1->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
+				label_recover1->setOpacity(0);
+				label_recover1->setTag(scene_game_int_tag_number_label_hp_player_recover);
+				addChild(label_recover1, Level_3);
+				label_recover1->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
+			}
+			if (playerHP > player_hp_total)
+				playerHP = player_hp_total;
+			break;
+		case 3:
+			scene_game_demage_fiex = received_msg->getEffect();
+			scene_game_damage_counter = received_msg->getEffectiveTime();
+			effect_Debuff(visibleSize);
+			break;
+		case 4:
+			if (PlayerMonster1->monster_getRacePerporty() == received_msg->getSkillProperty()){
+				PlayerMonster1->monster_setPower(received_msg->getEffect(), received_msg->getEffectiveTime());
+			}
+			if (PlayerMonster2->monster_getRacePerporty() == received_msg->getSkillProperty()){
+				PlayerMonster2->monster_setPower(received_msg->getEffect(), received_msg->getEffectiveTime());
+			}
+			if (PlayerMonster3->monster_getRacePerporty() == received_msg->getSkillProperty()){
+				PlayerMonster3->monster_setPower(received_msg->getEffect(), received_msg->getEffectiveTime());
+			}
+			if (PlayerMonster4->monster_getRacePerporty() == received_msg->getSkillProperty()){
+				PlayerMonster4->monster_setPower(received_msg->getEffect(), received_msg->getEffectiveTime());
+			}
+			effect_Enhance(visibleSize);
+			break;
+		case 5:
+			if (monster1->isAlive()){
+				if (monster1->monster_beAttackedBy(received_msg->getEffect()*monster1->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+					received_msg->setEffect(received_msg->getEffect() * 2);;
+				getChildByTag(scene_game_int_tag_number_sprite_monster1)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
+
+				str_stream_temp << "-" << received_msg->getEffect()*monster1->monster_get_hp_total();
+				str_temp = str_stream_temp.str();
+
+				auto label1 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
+				label1->setColor(ccColor3B::RED);
+				label1->setPosition(Vec2(visibleSize.width / 5, visibleSize.height * 7 / 8));
+				label1->setOpacity(0);
+				label1->setTag(scene_game_int_tag_number_label_monster1_attack_text);
+				addChild(label1, Level_3);
+				label1->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
+
+			}
+			else
+				if (monster2->isAlive()){
+				if (monster2->monster_beAttackedBy(received_msg->getEffect()*monster2->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+					received_msg->setEffect(received_msg->getEffect() * 2);;
+				getChildByTag(scene_game_int_tag_number_sprite_monster2)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
+
+				str_stream_temp << "-" << received_msg->getEffect()*monster2->monster_get_hp_total();
+				str_temp = str_stream_temp.str();
+
+				auto label2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
+				label2->setColor(ccColor3B::RED);
+				label2->setPosition(Vec2(visibleSize.width * 4 / 5, visibleSize.height * 7 / 8));
+				label2->setOpacity(0);
+				label2->setTag(scene_game_int_tag_number_label_monster2_attack_text);
+				addChild(label2, Level_3);
+				label2->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
+				}
+			break;
+		case 6:
+			playerHP += received_msg->getEffect()*player_hp_total;
+
+			str_stream_temp << "+" << received_msg->getEffect()*player_hp_total;
+			effect_Heal(visibleSize);
+			str_temp = str_stream_temp.str();
+
+			auto label_recover2 = LabelTTF::create(str_temp, "fonts/BankGothic Lt BT.ttf", 24);
+			label_recover2->setColor(ccColor3B::GREEN);
+			label_recover2->setPosition(Vec2(visibleSize.width / 2, visibleSize.height * 2 / 3));
+			label_recover2->setOpacity(0);
+			label_recover2->setTag(scene_game_int_tag_number_label_hp_player_recover);
+			addChild(label_recover2, Level_3);
+			label_recover2->runAction(Sequence::createWithTwoActions(FadeIn::create(0.4f), FadeOut::create(1.0f)));
+
+			if (playerHP > player_hp_total)
+				playerHP = player_hp_total;
+			break;
+		}
 
 		break;
 	}
@@ -2362,10 +2394,10 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 		case 0: break;
 		case 1:
 			if (monster3->isAlive()){
-				if(monster3->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+				if (monster3->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster3)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
-			
+
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
@@ -2379,10 +2411,10 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 			}
 			else
 				if (monster4->isAlive()){
-				if(monster4->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+				if (monster4->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster4)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
-			
+
 				str_stream_temp << "-" << received_msg->getEffect();
 				str_temp = str_stream_temp.str();
 
@@ -2437,7 +2469,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 
 		case 5:
 			if (monster3->isAlive()){
-				if(monster3->monster_beAttackedBy(received_msg->getEffect()*monster3->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+				if (monster3->monster_beAttackedBy(received_msg->getEffect()*monster3->monster_get_hp_total(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster3)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 
@@ -2454,10 +2486,10 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 			}
 			else
 				if (monster4->isAlive()){
-				if(monster4->monster_beAttackedBy(received_msg->getEffect()*monster4->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+				if (monster4->monster_beAttackedBy(received_msg->getEffect()*monster4->monster_get_hp_total(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster4)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
-			
+
 				str_stream_temp << "-" << received_msg->getEffect()*monster4->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
@@ -2496,7 +2528,7 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 		case 0: break;
 		case 1:
 			if (monster5->isAlive()){
-				if(monster5->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
+				if (monster5->monster_beAttackedBy(received_msg->getEffect(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster5)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
 
@@ -2553,10 +2585,10 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 			break;
 		case 5:
 			if (monster5->isAlive()){
-				if(monster5->monster_beAttackedBy(received_msg->getEffect()*monster5->monster_get_hp_total(), received_msg->getSkillProperty(), false))
+				if (monster5->monster_beAttackedBy(received_msg->getEffect()*monster5->monster_get_hp_total(), received_msg->getSkillProperty(), false))
 					received_msg->setEffect(received_msg->getEffect() * 2);;
 				getChildByTag(scene_game_int_tag_number_sprite_monster5)->runAction(UtilBeingAttack::create(0.5f, scene_game_scalNow));
-			
+
 				str_stream_temp << "-" << received_msg->getEffect()*monster5->monster_get_hp_total();
 				str_temp = str_stream_temp.str();
 
@@ -2611,7 +2643,7 @@ void SceneGame::updateMonsterHP(){
 	if (level == 2 && monster5->monster_get_hp_now() >= 0){
 		getChildByTag(scene_game_int_tag_number_sprite_hp_monster5)->runAction(ScaleTo::create(0.1f, (scene_game_scale_monster5_hp*(monster5->monster_get_hp_now()) / monster5->monster_get_hp_total()), scene_game_scalZhuanPan));
 	}
-	
+
 }
 
 void SceneGame::upadtePlayerHP(){
@@ -2621,7 +2653,7 @@ void SceneGame::upadtePlayerHP(){
 	auto  label = (LabelTTF*)getChildByTag(scene_game_int_tag_number_label_hp_player_text);
 
 	std::stringstream temp;
-	temp << playerHP<<"/"<<player_hp_total;
+	temp << playerHP << "/" << player_hp_total;
 	std::string s = temp.str();
 
 	label->setString(s);
@@ -2668,5 +2700,5 @@ void SceneGame::effect_Debuff(Size visibleSize){
 	_emitter->setSpeedVar(50);
 	_emitter->setEmissionRate(200);
 	this->addChild(_emitter, 10);
-	_emitter->setPosition(Vec2(visibleSize.width / 2, 5* visibleSize.height / 6));
+	_emitter->setPosition(Vec2(visibleSize.width / 2, 5 * visibleSize.height / 6));
 }

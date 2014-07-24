@@ -31,9 +31,18 @@ int Monster::monster_get_mosnter_type(){
 	return this->monster_type;
 }
 
-string Monster::getAttackPng(){
+string Monster::getAttackPngName(){
 	return this->attack_effect_png;
 }
+
+string Monster::getSprialBurstPngName(){
+	return this->spiral_burst_effect_png;
+}
+
+string Monster::getBishaPngName(){
+	return this->bisha_effect_png;
+}
+
 
 string Monster::getName(){
 	return this->name;
@@ -238,6 +247,8 @@ AttackMessage* BlackDragonBaby::monster_AttackOthers(){
 
 LvBu::LvBu(bool enemy, int level) :Monster(){
 	name = "LvBu";
+	spiral_burst_effect_png = "sb_LvBu";
+	bisha_effect_png = "bisha_LvBu";
 	energy = 0;
 	spiral_burst_light = 0;
 	energy_limit = 3;
@@ -332,6 +343,8 @@ AttackMessage* LvBu::monster_AttackOthers(){
 GodnessMinerva::GodnessMinerva(bool enemy, int level) :Monster(){
 	Monster();
 	name = "GodnessMinerva";
+	spiral_burst_effect_png = "sb_GodnessMinerva";
+	bisha_effect_png = "bisha_GodnessMinerva";
 	this->level = 100;
 	monster_type = 1;
 	energy = 0;
@@ -411,6 +424,8 @@ AttackMessage* GodnessMinerva::monster_AttackOthers(AttackMessage* message){
 
 PrincessShieldWaerqili::PrincessShieldWaerqili(bool enemy, int level):Monster(){
 	name = "PrincessShieldWaerqili";
+	spiral_burst_effect_png = "sb_PrincessShieldWaerqili";
+	bisha_effect_png = "bisha_PrincessShieldWaerqili";
 	this->level = 100;
 	monster_type = 2;
 	energy = 0;
@@ -490,6 +505,8 @@ AttackMessage* PrincessShieldWaerqili::monster_AttackOthers(AttackMessage* messa
 /*´È°®ÉñÎ¬ÄÉË¹*/
 GoddessOfLoveVenus::GoddessOfLoveVenus(bool enemy, int level) :Monster(){
 	name = "GoddessOfLoveVenus";
+	spiral_burst_effect_png = "sb_GoddessOfLoveVenus";
+	bisha_effect_png = "bisha_GoddessOfLoveVenus";
 	this->level = 100;
 	monster_type = 2;
 	energy = 0;
@@ -572,6 +589,8 @@ AttackMessage* GoddessOfLoveVenus::monster_AttackOthers(AttackMessage* message){
 
 Archdemon::Archdemon(bool enemy, int level) :Monster(){
 	name = "Archdemon";
+	spiral_burst_effect_png = "sb_Archdemon";
+	bisha_effect_png = "bisha_Archdemon";
 	this->level = 100;
 	monster_type = 1;
 	energy = 0;

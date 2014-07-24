@@ -5,6 +5,7 @@
 # define Level_3           3
 # define Level_4           4
 # define Level_5           5
+# define Level_spiral_burst 10
 # define circlesToTurn     4
 # define circleTurnTime    2
 
@@ -13,6 +14,7 @@
 #include "UtilBeingAttack.h"
 #include "UtilAttackMove.h"
 #include "Monster.h"
+#include "StartLayer.h"
 #include <string>
 #include <cstdlib>
 #include <cmath>
@@ -32,7 +34,7 @@ float scene_game_scale_monster5_hp;
 float scene_game_zhuanpan_action_time = 3.2f;
 float scene_game_position[2];
 float scene_game_demage_fiex = 1;
-float scene_game_position_monster1[2] = { 0.33333f, 0.8f	 };
+float scene_game_position_monster1[2] = { 0.33333f, 0.8f };
 float scene_game_position_monster2[2] = { 0.66667f, 0.8f };
 float scene_game_position_monster3[2] = { 0.33333f, 0.8f };
 float scene_game_position_monster4[2] = { 0.66667f, 0.8f };
@@ -146,6 +148,7 @@ enum
 
 	scene_game_int_tag_number_sprite_animate_boss,
 	scene_game_int_tag_number_sprite_animate_walkin,
+	scene_game_int_tag_number_sprite_animate_sp,
 
 	scene_game_int_tag_number_attack_effect1,
 	scene_game_int_tag_number_attack_effect2,
@@ -191,7 +194,7 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 		return false;
 	}
 	Director::getInstance()->getTextureCache()->removeUnusedTextures();
-
+	
 	auto animation = Animation::create();
 	for (int i = 1; i<55; i++)
 	{
@@ -200,7 +203,7 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 		animation->addSpriteFrameWithFile(szName);
 	}
 
-	// should last 2.8 seconds. And there are 14 frames.
+	// should last 2.8 seconds. And there are 14 frames. 
 	animation->setDelayPerUnit(2.5f / 54.0f);
 	animation->setRestoreOriginalFrame(true);
 
@@ -212,7 +215,7 @@ bool SceneGame::init(Monster* player_monster1, Monster* player_monster2, Monster
 		animation2->addSpriteFrameWithFile(szName);
 	}
 
-	// should last 2.8 seconds. And there are 14 frames.
+	// should last 2.8 seconds. And there are 14 frames. 
 	animation->setDelayPerUnit(4.0f / 94.0f);
 	animation->setRestoreOriginalFrame(true);
 
@@ -395,11 +398,12 @@ void SceneGame::update(float dt)
 			if (level == 2 && monster5->monster_get_hp_now() >= 0)
 				getChildByTag(scene_game_int_tag_number_sprite_hp_monster5)->runAction(ScaleTo::create(0.1f, (scene_game_scale_monster5_hp*(monster5->monster_get_hp_now()) / monster5->monster_get_hp_total()), scene_game_scalZhuanPan));
 		}
-		if (scene_game_timer_accumulated > 51){
+		if (scene_game_timer_accumulated > 61){
 			scene_game_timer_accumulated = 0;
 			scene_game_bool_cannot_player_operate = false;
+			upadtePlayerHP();
 			removeChildByTag(scene_game_int_tag_number_attack_effect_by_accumulate);
-
+			removeChildByTag(scene_game_int_tag_number_sprite_animate_sp);
 			if (level == 0){
 				if (monster1->monster_get_hp_now() <= 0){
 					show_monster1_hp(false);
@@ -684,6 +688,11 @@ void SceneGame::onTouchEnded(Touch* touch, Event  *event)
 void SceneGame::menuCallback(cocos2d::Ref* pSender){
 	if (!scene_game_bool_player_turn)
 		return;
+   auto scene = Scene::create();
+	StartLayer *start_scene = StartLayer::create();
+	scene->addChild(start_scene) ;
+	auto transitions = CCTransitionFade::create(2.0f, scene);
+	Director::getInstance()->replaceScene( transitions );
 
 }
 
@@ -1057,7 +1066,7 @@ void SceneGame::initZhuanpan(std::string scene_game_monster_pin1, std::string sc
 	pin_menu->setTag(scene_game_int_tag_number_sprite_pins);
 
 	pin_menu->setAnchorPoint(Vec2(0.5f, 0.33333f));
-	this->addChild(pin_menu, Level_3);
+	this->addChild(pin_menu, Level_4);
 	pin_menu->setPosition(Vec2::ZERO);
 	/*指针结束*/
 	/*转盘中心按键，显示Sprial Burst*/
@@ -1070,7 +1079,7 @@ void SceneGame::initZhuanpan(std::string scene_game_monster_pin1, std::string sc
 	sprite_zhuanpan_center->setScale(scal_ZhuanPan);
 	auto center_menu = Menu::create(sprite_zhuanpan_center, NULL);
 	center_menu->setPosition(Vec2::ZERO);
-	this->addChild(center_menu, Level_3);
+	this->addChild(center_menu, Level_4);
 	/*Sprial Burst 指针的Menu*/
 
 
@@ -1137,10 +1146,10 @@ void SceneGame::initZhuanpan(std::string scene_game_monster_pin1, std::string sc
 	pin_menu_spiral_burst3->setPosition(Vec2::ZERO);
 	pin_menu_spiral_burst4->setPosition(Vec2::ZERO);
 
-	this->addChild(pin_menu_spiral_burst1, Level_4);
-	this->addChild(pin_menu_spiral_burst2, Level_4);
-	this->addChild(pin_menu_spiral_burst3, Level_4);
-	this->addChild(pin_menu_spiral_burst4, Level_4);
+	this->addChild(pin_menu_spiral_burst1, Level_5);
+	this->addChild(pin_menu_spiral_burst2, Level_5);
+	this->addChild(pin_menu_spiral_burst3, Level_5);
+	this->addChild(pin_menu_spiral_burst4, Level_5);
 	/*指针结束*/
 
 	/*技能盒*/
@@ -1287,10 +1296,10 @@ void SceneGame::initZhuanpan(std::string scene_game_monster_pin1, std::string sc
 	sprite_pin3_energy1->setRotation(180.0f);
 	sprite_pin4_energy1->setRotation(270.0f);
 
-	this->addChild(sprite_pin1_energy1, Level_2);
-	this->addChild(sprite_pin2_energy1, Level_2);
-	this->addChild(sprite_pin3_energy1, Level_2);
-	this->addChild(sprite_pin4_energy1, Level_2);
+	this->addChild(sprite_pin1_energy1, Level_3);
+	this->addChild(sprite_pin2_energy1, Level_3);
+	this->addChild(sprite_pin3_energy1, Level_3);
+	this->addChild(sprite_pin4_energy1, Level_3);
 
 	/*指针能量槽结束*/
 	/*
@@ -2093,16 +2102,16 @@ void SceneGame::AttackByEnemy(){
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	std::string attackEffect1 = "enemy_attack_effect", attackEffect2 = "enemy_attack_effect";
 	if (level == 0){
-		attackEffect1 = monster1->getAttackPng();
-		attackEffect2 = monster2->getAttackPng();
+		attackEffect1 = monster1->getAttackPngName();
+		attackEffect2 = monster2->getAttackPngName();
 	}
 	if (level == 1){
-		attackEffect1 = monster3->getAttackPng();
-		attackEffect2 = monster4->getAttackPng();
+		attackEffect1 = monster3->getAttackPngName();
+		attackEffect2 = monster4->getAttackPngName();
 	}
 	if (level == 2){
-		attackEffect1 = monster5->getAttackPng();
-		attackEffect2 = monster5->getAttackPng();
+		attackEffect1 = monster5->getAttackPngName();
+		attackEffect2 = monster5->getAttackPngName();
 	}
 
 	auto splade2 = MotionStreak::create(1.0f, 4.0f, 25.0f, Color3B(255, 255, 255), "SceneGame/attack/" + attackEffect1 + ".png");
@@ -2241,17 +2250,48 @@ void SceneGame::specialAttack(AttackMessage* received_msg, Monster* monster){
 	std::stringstream str_stream_temp;
 	std::string str_temp;
 	Size visibleSize = Director::getInstance()->getVisibleSize();
-	auto _emitter = ParticleFlower::create();
-	_emitter->setTag(scene_game_int_tag_number_attack_effect_by_accumulate);
-	_emitter->setTexture(Director::getInstance()->getTextureCache()->addImage("stars.png"));
-	_emitter->setLifeVar(0);
-	_emitter->setLife(2);
-	_emitter->setSpeed(100);
-	_emitter->setSpeedVar(0);
-	_emitter->setEmissionRate(10000);
-	this->addChild(_emitter, 10);
-	_emitter->setPosition(Vec2(visibleSize.width / 2, 5 * visibleSize.height / 6));
-	scene_game_timer_accumulated = 1;
+	if (received_msg->getType() == 5){
+
+		auto sprite_sprial_burst = Sprite::create("SceneGame/attack/"+monster->getSprialBurstPngName()+".png");
+		sprite_sprial_burst->setTag(scene_game_int_tag_number_sprite_animate_sp);
+		sprite_sprial_burst->setPosition(Vec2(visibleSize.width/2,visibleSize.height/2));
+		sprite_sprial_burst->setScaleX(visibleSize.width / sprite_sprial_burst->getContentSize().width);
+		sprite_sprial_burst->setOpacity(0);
+		sprite_sprial_burst->setScaleY(visibleSize.height / sprite_sprial_burst->getContentSize().height);
+		addChild(sprite_sprial_burst, Level_spiral_burst);
+		
+		sprite_sprial_burst->runAction(Sequence::createWithTwoActions(FadeIn::create(1.2f), FadeOut::create(1.2f)));
+
+		auto _emitter = ParticleFlower::create();
+		_emitter->setTag(scene_game_int_tag_number_attack_effect_by_accumulate);
+		_emitter->setTexture(Director::getInstance()->getTextureCache()->addImage("stars.png"));
+		_emitter->setLifeVar(5);
+		_emitter->setLife(10);
+		_emitter->setSpeed(500);
+		_emitter->setSpeedVar(200);
+		_emitter->setEmissionRate(2000);
+		this->addChild(_emitter, 10);
+		_emitter->setPosition(Vec2(visibleSize.width / 2,visibleSize.height /2));
+		scene_game_timer_accumulated = 1;
+
+	}
+	else{
+		auto _emitter = ParticleFlower::create();
+		_emitter->setTag(scene_game_int_tag_number_attack_effect_by_accumulate);
+		_emitter->setTexture(Director::getInstance()->getTextureCache()->addImage("stars.png"));
+		_emitter->setLifeVar(5);
+		_emitter->setLife(10);
+		_emitter->setSpeed(400);
+		_emitter->setSpeedVar(00);
+		_emitter->setEmissionRate(12000);
+		this->addChild(_emitter, 10);
+		_emitter->setPosition(Vec2(visibleSize.width / 2, 5 * visibleSize.height / 6));
+		scene_game_timer_accumulated = 1;
+
+
+	}
+
+
 
 	switch (this->level){
 	case 0:{

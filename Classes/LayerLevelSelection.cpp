@@ -1,7 +1,7 @@
 #include "LayerLevelSelection.h"
+#include "LayerLoading.h"
 #include "SceneGame.h"
 #include "Monster.h"
-
 #include <string>
 USING_NS_CC;
 
@@ -123,60 +123,14 @@ bool LayerLevelSelection::init()
 	return true;
 }
 
-int i = 2;
+
 
 void LayerLevelSelection::menuFunctionCallback(Ref* pSender)
 {
-	if (i == 0){
-		
-		/*
-		auto animation = Animation::create();
-		for (int i = 18; i<112; i++)
-		{
-			char szName[100] = { 0 };
-			sprintf(szName, "SceneGame/animation/boss/Comp 1_%05d.png", i);
-			animation->addSpriteFrameWithFile(szName);
-		}
-		
-		// should last 2.8 seconds. And there are 14 frames. 
-		animation->setDelayPerUnit(4.0f / 94.0f);
-		animation->setRestoreOriginalFrame(true);
-		auto action = Animate::create(animation);
-		getChildByTag(12)->runAction(action);
-		
 
-		SpriteFrameCache *frameCache = SpriteFrameCache::getInstance();
-		frameCache->addSpriteFramesWithFile("SceneGame/animation/Boss.plist", "SceneGame/animation/Boss.png");//boy.png里集合了boy1.png,boy2.png这些小图 
-		auto frame_sp = Sprite::createWithSpriteFrameName("Comp00018.png");//从SpriteFrameCache缓存中找到boy1.png这张图片. 
-		this->addChild(frame_sp, 2);
-		*/
-		
-
-		/*
-		auto cache = AnimationCache::getInstance();
-		cache->addAnimationsWithFile("SceneGame/animation/try.plist");
-		auto animation2 = cache->getAnimation("try");
-		auto action2 = Animate::create(animation2);
-		getChildByTag(12)->runAction(action2);
-		*/
-
-		i++;
-
-	}
-	else{
-		/*
-		auto level = GameLevel();
-		level.setMonster1(&SlimeFire(true, 100));
-		level.setMonster1(&SlimeWater(true, 100));
-		level.setMonster1(&BlackDragonBaby(true, 100));
-		level.setMonster1(&BlackDragonBaby(true, 100));
-		level.setMonster1(&LvBu(true, 100));
-		*/
-		//SceneGame::createSceneGame();	
  
-		//auto s = SceneGame::createScene(&SlimeWater(true, 100), &PrincessShieldWaerqili(false, 100), &GoddessOfLoveVenus(false, 100), &Archdemon(false, 100));
-		auto s = SceneGame::createScene(new GodnessMinerva(false, 100), new PrincessShieldWaerqili(false, 100), new GoddessOfLoveVenus(false, 100), new Archdemon(false, 100));
-		Director::sharedDirector()->replaceScene(TransitionFade::create(1, s));
-	}
+	auto s = SceneGame::createScene(new GodnessMinerva(false, 100), new PrincessShieldWaerqili(false, 100), new GoddessOfLoveVenus(false, 100), new Archdemon(false, 100));
+	Director::sharedDirector()->replaceScene(TransitionFade::create(1, s));
+
 }
 

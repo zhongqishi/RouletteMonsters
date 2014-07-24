@@ -31,7 +31,6 @@ public:
 private:
 	AttackMessage* msg;
 
-
 	Monster* PlayerMonster1;
 	Monster* PlayerMonster2;
 	Monster* PlayerMonster3;
@@ -69,6 +68,11 @@ private:
 	MotionStreak * streak;
 	Vec2 gs_MotionStreak_center;
 	
+
+
+	bool start();
+
+
 	float gs_MotionStreak_radius;
 	float gs_MotionStreak_angle;
 

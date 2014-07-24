@@ -16,6 +16,8 @@ protected:
 	string description="";
 	string race="";
 	string attack_effect_png="";
+	string spiral_burst_effect_png = "";
+	string bisha_effect_png = "";
 	int level=0;
 	int monster_type;//1 是攻击型，2为辅助性
 	int experence=0;
@@ -42,7 +44,9 @@ public:
 	void monster_setDescription(string description);
 	void monster_setLevel(int level);
 	string getName();
-	string getAttackPng();
+	string getAttackPngName();
+	string getSprialBurstPngName();
+	string getBishaPngName();
 	int monster_get_hp_now();
 	bool isAlive();
 	void monster_setPower(float times_power, int buff_time);
